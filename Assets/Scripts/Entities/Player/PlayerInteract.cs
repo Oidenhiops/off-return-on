@@ -31,7 +31,7 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
     void Start()
     {
         playerInputs = GetComponent<PlayerInputs>();
-        playerInputs.playerControls.Player.Interact.performed += Interact;
+        playerInputs.playerControls.Player.Interact.started += OnInteract;
     }
     public void HandleInteract(){
         
@@ -41,11 +41,11 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
         if (!GameManager.Instance.startGame || !managementCharacter.character.isActive) return;
         currentInteract = CheckInteract();
     }
-    public void Interact(InputAction.CallbackContext context)
+    public void OnInteract(InputAction.CallbackContext context)
     {
         if (currentInteract)
         {
-            currentInteract.Interact();
+            currentInteract.Interact(managementCharacter);
         }
     }
     public void ValidateShowBannerInteract(ManagementObjectInteract objectToInteract, bool canShow)
@@ -64,7 +64,12 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
         Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
         if (Physics.Raycast(ray, out RaycastHit hit, rangeRay, LayerMask.GetMask("Interact")))
         {
-            return hit.collider.gameObject.GetComponent<ManagementObjectInteract>();
+            if (hit.collider.TryGetComponent<ManagementObjectInteract>(out ManagementObjectInteract component)){
+                if (component.canInteract)
+                {
+                    return component;       
+                }
+            }
         }
         return null;
     }

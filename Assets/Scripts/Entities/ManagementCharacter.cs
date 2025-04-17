@@ -13,6 +13,7 @@ public class ManagementCharacter : MonoBehaviour
         if (TryGetComponent<IMovement>(out IMovement movement)) character.movementCs = movement;
         if (TryGetComponent<IDirection>(out IDirection direction)) character.directionCs = direction;
         if (TryGetComponent<IInteract>(out IInteract interact)) character.interactCs = interact;
+        if (TryGetComponent<IItems>(out IItems items)) character.itemsCs = items;
         _= character.InitializeCharacter();
     }
     void Update()
@@ -28,10 +29,12 @@ public class ManagementCharacter : MonoBehaviour
     {
         public bool isActive;
         public Rigidbody rb;
+        public Transform rightHand;
         public bool isGrounded => CheckIsGrounded();
         public IMovement movementCs;
         public IDirection directionCs;
         public IInteract interactCs;
+        public IItems itemsCs;
         public CollidersInfo collidersInfo = new CollidersInfo();
         bool CheckIsGrounded(){
             return CurrentGrounded() != "";
@@ -81,5 +84,9 @@ public class ManagementCharacter : MonoBehaviour
     public interface IInteract
     {
         public void HandleInteract();
+    }
+    public interface IItems{
+        public void PickUpItem(ItemInteract.ItemInfo itemInfo);
+        public void DropItem(int index);
     }
 }

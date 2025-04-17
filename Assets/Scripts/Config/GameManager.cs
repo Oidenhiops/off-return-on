@@ -18,8 +18,8 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 60;
+        // QualitySettings.vSyncCount = 0;
+        // Application.targetFrameRate = 60;
         Cursor.visible = false;
         SetInitialDevice();
     }
