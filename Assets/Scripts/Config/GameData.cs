@@ -8,7 +8,7 @@ public class GameData : MonoBehaviour
     public static GameData Instance { get; private set; }
     string nameSaveData = "SaveData.json";
     public SaveData saveData = new SaveData();    
-    public List<string[]> csvData = new List<string[]>();    
+    public List<string[]> csvData = new List<string[]>();
     void Awake()
     {
         if (Instance == null)
@@ -169,6 +169,9 @@ public class GameData : MonoBehaviour
         public bool isInitialize = false;
         public string characterSelectedName;
     }
+    [NaughtyAttributes.Button] public void ChangeLanguage(){
+        saveData.configurationsInfo.currentLanguage = TypeLanguage.Español;
+    }
     [Serializable] public class ConfigurationsInfo
     {
         public TypeLanguage _currentLanguage;
@@ -178,7 +181,7 @@ public class GameData : MonoBehaviour
             set{
                 if (_currentLanguage != value){
                     _currentLanguage = value;
-                    OnLanguageChange.Invoke(_currentLanguage);
+                    OnLanguageChange?.Invoke(_currentLanguage);
                 }
             }
         }
