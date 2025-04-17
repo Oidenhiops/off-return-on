@@ -12,7 +12,7 @@ public class ManagementOpenCloseScene : MonoBehaviour
     public bool auto = false;
     void Start()
     {
-        if (auto) StartCoroutine(AutoCharge());
+        ResetValues();
     }
     public void Update()
     {
@@ -48,5 +48,15 @@ public class ManagementOpenCloseScene : MonoBehaviour
     public void FinishLoad()
     {
         GameManager.Instance.startGame = true;
+    }
+    public void ResetValues()
+    {
+        if (auto)
+        {
+            currentLoad = 0;
+            finishLoad = false;
+            openCloseSceneLoader.fillAmount = 0;
+            StartCoroutine(AutoCharge());
+        }
     }
 }
