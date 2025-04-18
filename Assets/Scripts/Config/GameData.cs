@@ -124,6 +124,8 @@ public class GameData : MonoBehaviour
         dataInfo.configurationsInfo.currentLanguage = TypeLanguage.English;
         SetStartingDataSound(dataInfo);
         SetStartingPlayerData(dataInfo);
+        dataInfo.configurationsInfo.FpsLimit = 60;
+        Application.targetFrameRate = 60;
         if (GameManager.Instance.currentDevice == GameManager.TypeDevice.PC) SetStartingResolution(dataInfo);
         saveData.gameInfo = new GameInfo();
         saveData = dataInfo;
@@ -169,8 +171,9 @@ public class GameData : MonoBehaviour
         public bool isInitialize = false;
         public string characterSelectedName;
     }
-    [NaughtyAttributes.Button] public void ChangeLanguage(){
-        saveData.configurationsInfo.currentLanguage = TypeLanguage.Español;
+    public void ChangeLanguage(TypeLanguage language)
+    {
+        saveData.configurationsInfo.currentLanguage = language;
     }
     [Serializable] public class ConfigurationsInfo
     {
@@ -185,6 +188,7 @@ public class GameData : MonoBehaviour
                 }
             }
         }
+        public int FpsLimit = 0;
         public ResolutionConfiguration resolutionConfiguration = new ResolutionConfiguration();
         public SoundConfiguration soundConfiguration = new SoundConfiguration();
     }
