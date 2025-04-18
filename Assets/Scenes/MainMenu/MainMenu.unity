@@ -243,7 +243,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 266, y: -15}
+  m_AnchoredPosition: {x: 266, y: 49}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &343784984
@@ -579,6 +579,7 @@ GameObject:
   - component: {fileID: 1347883326}
   - component: {fileID: 1347883325}
   - component: {fileID: 1347883324}
+  - component: {fileID: 1347883328}
   m_Layer: 5
   m_Name: MainMenuCanvas
   m_TagString: Untagged
@@ -669,6 +670,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
+--- !u!114 &1347883328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1347883323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74238a287707ff048a4f9cd923ab8994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1369546673
 GameObject:
   m_ObjectHideFlags: 0
@@ -704,7 +717,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 265.99997, y: -114.1}
+  m_AnchoredPosition: {x: 265.99997, y: -50.10002}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1369546675
@@ -1159,7 +1172,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 265.99997, y: -63.699997}
+  m_AnchoredPosition: {x: 265.99997, y: 0.29998016}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1894887719
@@ -1258,7 +1271,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: options
+  m_text: SETTINGS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b794901da3f96ec478c6d22789e8e730, type: 2}
   m_sharedMaterial: {fileID: 1961598462066757827, guid: b794901da3f96ec478c6d22789e8e730, type: 2}

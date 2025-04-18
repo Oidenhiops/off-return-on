@@ -54,10 +54,8 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
                 Time.timeScale = 0;
                 break;
-            case TypeScene.Exit:
-                openCloseScene.openCloseSceneAnimator.Play("Out");
-                openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
-                StartCoroutine(ChangeScene(typeScene));
+            case TypeScene.CreditsScene:
+                SceneManager.LoadScene("CreditsMenu", LoadSceneMode.Additive);
                 break;
             default:
                 openCloseScene.openCloseSceneAnimator.Play("Out");
@@ -73,6 +71,10 @@ public class GameManager : MonoBehaviour
         if (typeScene != TypeScene.Exit)
         {
             SceneManager.LoadScene(typeScene.ToString());
+        }
+        else if(typeScene == TypeScene.Reload)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
@@ -190,8 +192,9 @@ public class GameManager : MonoBehaviour
         OptionsScene = 1,
         GameScene = 2,
         Exit = 3,
-        NextLevel = 1,
+        NextLevel = 4,
         CreditsScene = 5,
+        Reload = 6,
     }
     public enum TypeDevice
     {
@@ -199,20 +202,6 @@ public class GameManager : MonoBehaviour
         PC,
         GAMEPAD,
         MOBILE,
-    }
-    public void OpenCreditsMenu()
-    {
-        SceneManager.LoadScene("CreditsMenu", LoadSceneMode.Additive);
-    }
-
-    public void OpenOptionsMenu()
-    {
-        SceneManager.LoadScene("OptionMenu", LoadSceneMode.Additive);
-    }
-
-    public void ReloadCurrentScene()
-    {
-    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void LoadNextScene()

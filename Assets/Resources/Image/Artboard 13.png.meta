@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -100,10 +100,10 @@ TextureImporter:
       name: Artboard 13_0
       rect:
         serializedVersion: 2
-        x: 45
-        y: 34
-        width: 855
-        height: 100
+        x: 0
+        y: 0
+        width: 1809
+        height: 189
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -112,74 +112,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 5b54416ef5eb06c499e01c3389c2411e
+      spriteID: b3ea719a86bb3e141aa19ec79c39b044
       internalID: 1396570971
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Artboard 13_1
-      rect:
-        serializedVersion: 2
-        x: 883
-        y: 41
-        width: 21
-        height: 113
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: bfa10d1bd5d77df419130835b03ce681
-      internalID: 251514596
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Artboard 13_2
-      rect:
-        serializedVersion: 2
-        x: 907
-        y: 34
-        width: 20
-        height: 123
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 152b1c467f48c884b8333ef025059e7c
-      internalID: 1714278663
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Artboard 13_3
-      rect:
-        serializedVersion: 2
-        x: 915
-        y: 32
-        width: 850
-        height: 101
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 58f42bc19590f94479e459a38534d82d
-      internalID: -1153039045
       vertices: []
       indices: 
       edges: []
@@ -199,9 +133,6 @@ TextureImporter:
       entries: []
     nameFileIdTable:
       Artboard 13_0: 1396570971
-      Artboard 13_1: 251514596
-      Artboard 13_2: 1714278663
-      Artboard 13_3: -1153039045
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

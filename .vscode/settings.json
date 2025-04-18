@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "Off Return On.sln"
+    "dotnet.defaultSolution": "off-return-on.sln"
 }
