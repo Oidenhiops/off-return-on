@@ -9,6 +9,18 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
     public ManagementCharacter managementCharacter;
     public Item[] items;
     public int itemPos = 0;
+    public Item _currentItem;
+    public Action<Item> OnCurrentItemChange;
+    public Item currentItem{
+        get => _currentItem;
+        set{
+            if (_currentItem != value)
+            {
+                _currentItem = value;
+                OnCurrentItemChange?.Invoke(_currentItem);
+            }
+        }
+    }
     void Start()
     {
         playerInputs = GetComponent<PlayerInputs>();
@@ -45,13 +57,29 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         {
             itemPos = items.Length - 1;
         }
-        if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(true);
+        if (items[itemPos].itemInfo.itemSO)
+        {
+            items[itemPos].itemInfo.itemObj.SetActive(true);
+            currentItem = items[itemPos];
+        }
+        else
+        {
+            currentItem = null;
+        }
     }
     void ChangeItem(int pos)
     {
         if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(false);
         itemPos = pos;
-        if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(true);
+        if (items[itemPos].itemInfo.itemSO)
+        {
+            items[itemPos].itemInfo.itemObj.SetActive(true);
+            currentItem = items[itemPos];
+        }
+        else
+        {
+            currentItem = null;
+        }
     }
     public void PickUpItem(ItemInteract.ItemInfo itemInfo)
     {
@@ -66,6 +94,7 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         itemInfo.itemObj.transform.SetParent(managementCharacter.character.rightHand);
         itemInfo.itemObj.transform.localPosition = Vector3.zero;
         itemInfo.itemObj.transform.localRotation = Quaternion.identity;
+        currentItem = items[itemPos];
     }
     public void DropItem(int index)
     {
@@ -76,7 +105,11 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         items[index].itemInfo.managementObjectInteract.canInteract = true;
         items[index].itemInfo.itemInteract.DropItem(managementCharacter);
         items[index].amount--;
-        if (items[index].amount == 0) items[index].itemInfo = new ItemInteract.ItemInfo();
+        if (items[index].amount == 0)
+        {
+            items[index].itemInfo = new ItemInteract.ItemInfo();
+            currentItem = null;
+        }
     }
     public void UseItem()
     {

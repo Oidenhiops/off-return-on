@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -80,7 +81,7 @@ public class PlayerInputs : MonoBehaviour
     {
         playerInputsInfo.lookInput = context.ReadValue<Vector2>();
     }
-    public class PlayerInputsInfo{
+    [Serializable] public class PlayerInputsInfo{
         public Vector2 movementInput = new Vector2();
         public Vector2 lookInput = new Vector2();
     }
