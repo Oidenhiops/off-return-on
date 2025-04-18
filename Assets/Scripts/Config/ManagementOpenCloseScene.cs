@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class ManagementOpenCloseScene : MonoBehaviour
 {
     public Animator openCloseSceneAnimator;
-    [SerializeField] Image openCloseSceneLoader;
     [NonSerialized] public bool finishLoad = false;
     float currentLoad = 0;
     public bool auto = false;
@@ -19,10 +18,8 @@ public class ManagementOpenCloseScene : MonoBehaviour
         if (!finishLoad)
         {
             float value = currentLoad / 100 > 0 ? currentLoad / 100 : 1;
-            openCloseSceneLoader.fillAmount = Mathf.Lerp(openCloseSceneLoader.fillAmount, currentLoad / 100, value * Time.deltaTime);
-            if (openCloseSceneLoader.fillAmount >= 0.99)
+            if (currentLoad == 100)
             {
-                openCloseSceneLoader.fillAmount = 1;
                 finishLoad = true;
                 GameManager.Instance.EnterScene();
                 FinishLoad();
@@ -38,7 +35,7 @@ public class ManagementOpenCloseScene : MonoBehaviour
                 break;
             }
             currentLoad += 50;
-            yield return new WaitForSeconds(2);
+            yield return new WaitForSeconds(0.5f);
         }
     }
     public void AdjustLoading(float amount)
@@ -55,7 +52,6 @@ public class ManagementOpenCloseScene : MonoBehaviour
         {
             currentLoad = 0;
             finishLoad = false;
-            openCloseSceneLoader.fillAmount = 0;
             StartCoroutine(AutoCharge());
         }
     }
