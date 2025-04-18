@@ -2,32 +2,18 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
-    void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-        // QualitySettings.vSyncCount = 0;
-        // Application.targetFrameRate = 60;
-        Cursor.visible = false;
-        SetInitialDevice();
-    }
     public ManagementOpenCloseScene openCloseScene;
     public Coroutine fadeIn;
     public Coroutine fadeOut;
     public bool isWebGlBuild;
     public TypeDevice _currentDevice;
+    public TypeDevice principalDevice;
     public event Action<TypeDevice> OnDeviceChanged;
     public TypeDevice currentDevice
     {
@@ -44,40 +30,73 @@ public class GameManager : MonoBehaviour
     public bool isPause;
     public bool startGame;
     public AudioMixer audioMixer;
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }        
+        SetInitialDevice();
+    }
+    void Update()
+    {
+        if (startGame)
+        {
+            CheckCurrentDevice();
+        }
+    }
     public void ChangeSceneSelector(TypeScene typeScene)
     {
-        Time.timeScale = 1;
         isPause = false;
         switch (typeScene)
         {
             case TypeScene.OptionsScene:
                 isPause = true;
-                SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
-                Time.timeScale = 0;
+                if (SceneManager.GetActiveScene().name != "HomeScene") Time.timeScale = 0;
+                SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);                
                 break;
-            default:              
+            case TypeScene.CreditsScene:                
+                SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
+                break;
+            default:
                 StartCoroutine(ChangeScene(typeScene));
                 break;
         }
     }
     public IEnumerator ChangeScene(TypeScene typeScene)
     {
+        Time.timeScale = 1;
         openCloseScene.ResetValues();
         openCloseScene.openCloseSceneAnimator.Play("Out");
         openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
         fadeOut = StartCoroutine(FadeOut());
         yield return new WaitForSecondsRealtime(2);
-        if (typeScene != TypeScene.Exit)
+        if (typeScene == TypeScene.NextLevel)
         {
-            SceneManager.LoadScene(typeScene.ToString());
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
-        else if(typeScene == TypeScene.Reload)
+        else if (typeScene == TypeScene.Reload)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
         else
         {
             Application.Quit();
+        }
+        if (typeScene != TypeScene.HomeScene ||
+            typeScene != TypeScene.CreditsScene ||
+            typeScene != TypeScene.OptionsScene)
+        {
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.visible = true;
         }
         ChangedScene();
     }
@@ -87,7 +106,6 @@ public class GameManager : MonoBehaviour
     }
     public void ChangedScene()
     {
-        Cursor.visible = true;
         StopCoroutine(fadeOut);
     }
     public IEnumerator FadeIn()
@@ -170,14 +188,40 @@ public class GameManager : MonoBehaviour
                  Application.platform == RuntimePlatform.LinuxPlayer)
             {
                 currentDevice = TypeDevice.PC;
+                principalDevice = TypeDevice.PC;
             }
             else if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer)
             {
                 currentDevice = TypeDevice.MOBILE;
+                principalDevice = TypeDevice.MOBILE;
             }
             else
             {
                 currentDevice = TypeDevice.GAMEPAD;
+                principalDevice = TypeDevice.GAMEPAD;
+            }
+        }
+        else
+        {
+            currentDevice = TypeDevice.PC;
+            principalDevice = TypeDevice.PC;
+        }
+    }
+    void CheckCurrentDevice()
+    {
+        if (!isWebGlBuild)
+        {
+            if (ValidateDeviceIsMobile())
+            {
+                currentDevice = TypeDevice.MOBILE;
+            }
+            else if (IsGamepadInput())
+            {
+                currentDevice = TypeDevice.GAMEPAD;
+            }
+            else if (ValidateDeviceIsPc())
+            {
+                currentDevice = TypeDevice.PC;
             }
         }
         else
@@ -185,15 +229,42 @@ public class GameManager : MonoBehaviour
             currentDevice = TypeDevice.PC;
         }
     }
+    bool ValidateDeviceIsMobile()
+    {
+        return Touchscreen.current != null;
+    }
+    bool ValidateDeviceIsPc()
+    {
+        return Keyboard.current.anyKey.wasPressedThisFrame ||
+            Mouse.current.leftButton.wasPressedThisFrame ||
+            Mouse.current.rightButton.wasPressedThisFrame ||
+            Mouse.current.scroll.ReadValue() != Vector2.zero ||
+            Mouse.current.delta.ReadValue() != Vector2.zero;
+    }
+    bool IsGamepadInput()
+    {
+        Gamepad gamepad = Gamepad.current;
+        if (gamepad == null) return false;
+        bool currentDeviceIsGamepad = Gamepad.current != null;
+        bool validateAnyGamepadInput = gamepad.buttonSouth.wasPressedThisFrame ||
+               gamepad.buttonNorth.wasPressedThisFrame ||
+               gamepad.buttonEast.wasPressedThisFrame ||
+               gamepad.buttonWest.wasPressedThisFrame ||
+               gamepad.leftStick.ReadValue() != Vector2.zero ||
+               gamepad.rightStick.ReadValue() != Vector2.zero ||
+               gamepad.dpad.ReadValue() != Vector2.zero ||
+               gamepad.leftTrigger.wasPressedThisFrame ||
+               gamepad.rightTrigger.wasPressedThisFrame;
+        return currentDeviceIsGamepad && validateAnyGamepadInput;
+    }
     public enum TypeScene
     {
         HomeScene = 0,
         OptionsScene = 1,
-        GameScene = 2,
-        Exit = 3,
-        NextLevel = 4,
-        CreditsScene = 5,
-        Reload = 6,
+        NextLevel = 2,
+        CreditsScene = 3,
+        Reload = 4,
+        Exit = 5,
     }
     public enum TypeDevice
     {
@@ -202,22 +273,4 @@ public class GameManager : MonoBehaviour
         GAMEPAD,
         MOBILE,
     }
-
-    public void LoadNextScene()
-    {
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        int nextSceneIndex = currentSceneIndex + 1;
-
-        // Verifica si hay una siguiente escena
-        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
-        {
-            SceneManager.LoadScene(nextSceneIndex);
-        }
-        else
-        {
-            Debug.LogWarning("No hay m�s escenas. �Has completado el juego!");
-            //ReloadCurrentScene(); // Recargar la primera escena
-        }
-    }
-
 }
