@@ -18,8 +18,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        QualitySettings.vSyncCount = 0;
-        Application.targetFrameRate = 60;
+        // QualitySettings.vSyncCount = 0;
+        // Application.targetFrameRate = 60;
+        Cursor.visible = false;
         SetInitialDevice();
     }
     public ManagementOpenCloseScene openCloseScene;
@@ -54,20 +55,16 @@ public class GameManager : MonoBehaviour
                 SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
                 Time.timeScale = 0;
                 break;
-            case TypeScene.Exit:
-                openCloseScene.openCloseSceneAnimator.Play("Out");
-                openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
-                StartCoroutine(ChangeScene(typeScene));
-                break;
-            default:
-                openCloseScene.openCloseSceneAnimator.Play("Out");
-                openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
+            default:              
                 StartCoroutine(ChangeScene(typeScene));
                 break;
         }
     }
     public IEnumerator ChangeScene(TypeScene typeScene)
     {
+        openCloseScene.ResetValues();
+        openCloseScene.openCloseSceneAnimator.Play("Out");
+        openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
         fadeOut = StartCoroutine(FadeOut());
         yield return new WaitForSecondsRealtime(2);
         if (typeScene != TypeScene.Exit)
@@ -91,7 +88,7 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator FadeIn()
     {
-        float decibelsMaster = 20 * Mathf.Log10(ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
+        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
         float currentVolumen;
         float volume;
         if (audioMixer.GetFloat(ManagementOptions.TypeSound.Master.ToString(), out volume))
@@ -104,7 +101,7 @@ public class GameManager : MonoBehaviour
         }
         while (currentVolumen < decibelsMaster)
         {
-            if (ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
+            if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
             currentVolumen++;
             audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), currentVolumen);
             yield return new WaitForSecondsRealtime(0.05f);
@@ -112,10 +109,10 @@ public class GameManager : MonoBehaviour
     }
     public IEnumerator FadeOut()
     {
-        float decibelsMaster = 20 * Mathf.Log10(ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
+        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
         while (decibelsMaster > -80)
         {
-            if (ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
+            if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
             decibelsMaster -= 1;
             audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), decibelsMaster);
             yield return new WaitForSecondsRealtime(0.05f);
@@ -138,26 +135,26 @@ public class GameManager : MonoBehaviour
     }
     public void SetAudioMixerData()
     {
-        float decibelsMaster = 20 * Mathf.Log10(ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
-        float decibelsBGM = 20 * Mathf.Log10(ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue / 100);
-        float decibelsSFX = 20 * Mathf.Log10(ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue / 100);
+        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
+        float decibelsBGM = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue / 100);
+        float decibelsSFX = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue / 100);
 
-        if (ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue == 0)
+        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue == 0)
         {
             decibelsMaster = -80;
         }
-        if (ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue == 0)
+        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue == 0)
         {
             decibelsBGM = -80;
         }
-        if (ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue == 0)
+        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue == 0)
         {
             decibelsSFX = -80;
         }
         audioMixer.SetFloat(ManagementOptions.TypeSound.BGM.ToString(), decibelsBGM);
         audioMixer.SetFloat(ManagementOptions.TypeSound.SFX.ToString(), decibelsSFX);
-        audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), ManagementData.Instance.saveData.configurationsInfo.soundConfiguration.isMute ? -80 : decibelsMaster);
-        ManagementData.Instance.SaveGameData();
+        audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute ? -80 : decibelsMaster);
+        GameData.Instance.SaveGameData();
     }
     public void SetInitialDevice()
     {
