@@ -3,17 +3,17 @@ using System.Collections;
 
 public class HorrorDollManager : MonoBehaviour
 {
-    [Header("Settings")]
-    [SerializeField] private float spawnInterval = 60f; // Tiempo entre apariciones
-    [SerializeField] private float reactionTime = 5f; // Segundos para reaccionar
-    [SerializeField] private float spawnDistanceBehind = 2f; // Distancia detrás del jugador
+    [Header("Doll Settings")]
+    [SerializeField] private float spawnInterval = 60f;
+    [SerializeField] private float reactionTime = 5f;
+    [SerializeField] private float spawnDistanceBehind = 2f;
 
     [Header("References")]
     [SerializeField] private GameObject dollPrefab;
-    [SerializeField] private GameObject evilEntityPrefab;
     [SerializeField] private AudioClip dollLaughSFX;
+    [SerializeField] private AudioClip dollScreamSFX;
     [SerializeField] private Light flashlight;
-
+    [SerializeField] private EntityController entityController;
 
     private GameObject currentDoll;
     private bool isDollActive = false;
@@ -29,15 +29,13 @@ public class HorrorDollManager : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
             
-            // Spawn de la muñeca detrás del jugador
             Vector3 spawnPos = transform.position - transform.forward * spawnDistanceBehind;
             currentDoll = Instantiate(dollPrefab, spawnPos, Quaternion.identity);
-            currentDoll.transform.LookAt(transform); // La muñeca mira al jugador
+            currentDoll.transform.LookAt(transform);
 
-            // Sonido de risa
-            GameManager.Instance.PlayASound(dollLaughSFX);
-
+            AudioSource.PlayClipAtPoint(dollLaughSFX, transform.position);
             isDollActive = true;
+
             StartCoroutine(DollThreatRoutine());
         }
     }
@@ -45,26 +43,25 @@ public class HorrorDollManager : MonoBehaviour
     IEnumerator DollThreatRoutine()
     {
         float timer = 0f;
-        bool isEntitySpawned = false;
 
-        while (timer < reactionTime && !isEntitySpawned)
+        while (timer < reactionTime)
         {
-            // Verificar si el jugador apunta a la muñeca con la linterna
             if (flashlight.enabled && IsDollHitByLight())
             {
                 Destroy(currentDoll);
                 isDollActive = false;
-                yield break; // Terminar la corrutina
+                yield break;
             }
 
             timer += Time.deltaTime;
             yield return null;
         }
 
-        // Si no se destruyó la muñeca en 5 segundos
         if (isDollActive)
         {
-            SpawnEvilEntity();
+            // En vez de spawnear entidad, alerta a la existente
+            AudioSource.PlayClipAtPoint(dollScreamSFX, transform.position);
+            entityController.OnDollScream(currentDoll.transform.position);
             Destroy(currentDoll);
             isDollActive = false;
         }
@@ -78,19 +75,8 @@ public class HorrorDollManager : MonoBehaviour
 
         if (Physics.Raycast(rayOrigin, rayDirection, out hit, flashlight.range))
         {
-            if (hit.collider.CompareTag("Doll"))
-            {
-                return true;
-            }
+            return hit.collider.CompareTag("Doll");
         }
         return false;
-    }
-
-    private void SpawnEvilEntity()
-    {
-        // Spawn en un punto aleatorio alrededor del jugador
-        Vector3 randomPos = transform.position + Random.insideUnitSphere * 5f;
-        randomPos.y = transform.position.y; // Mantener altura del jugador
-        Instantiate(evilEntityPrefab, randomPos, Quaternion.identity);
     }
 }
