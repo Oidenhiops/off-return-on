@@ -1,0 +1,82 @@
+using UnityEngine;
+using System.Collections;
+
+public class HorrorDollManager : MonoBehaviour
+{
+    [Header("Doll Settings")]
+    [SerializeField] private float spawnInterval = 60f;
+    [SerializeField] private float reactionTime = 5f;
+    [SerializeField] private float spawnDistanceBehind = 2f;
+
+    [Header("References")]
+    [SerializeField] private GameObject dollPrefab;
+    [SerializeField] private AudioClip dollLaughSFX;
+    [SerializeField] private AudioClip dollScreamSFX;
+    [SerializeField] private Light flashlight;
+    [SerializeField] private EntityController entityController;
+
+    private GameObject currentDoll;
+    private bool isDollActive = false;
+
+    void Start()
+    {
+        StartCoroutine(SpawnDollRoutine());
+    }
+
+    IEnumerator SpawnDollRoutine()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(spawnInterval);
+            
+            Vector3 spawnPos = transform.position - transform.forward * spawnDistanceBehind;
+            currentDoll = Instantiate(dollPrefab, spawnPos, Quaternion.identity);
+            currentDoll.transform.LookAt(transform);
+
+            AudioSource.PlayClipAtPoint(dollLaughSFX, transform.position);
+            isDollActive = true;
+
+            StartCoroutine(DollThreatRoutine());
+        }
+    }
+
+    IEnumerator DollThreatRoutine()
+    {
+        float timer = 0f;
+
+        while (timer < reactionTime)
+        {
+            if (flashlight.enabled && IsDollHitByLight())
+            {
+                Destroy(currentDoll);
+                isDollActive = false;
+                yield break;
+            }
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        if (isDollActive)
+        {
+            // En vez de spawnear entidad, alerta a la existente
+            AudioSource.PlayClipAtPoint(dollScreamSFX, transform.position);
+            entityController.OnDollScream(currentDoll.transform.position);
+            Destroy(currentDoll);
+            isDollActive = false;
+        }
+    }
+
+    private bool IsDollHitByLight()
+    {
+        RaycastHit hit;
+        Vector3 rayOrigin = flashlight.transform.position;
+        Vector3 rayDirection = flashlight.transform.forward;
+
+        if (Physics.Raycast(rayOrigin, rayDirection, out hit, flashlight.range))
+        {
+            return hit.collider.CompareTag("Doll");
+        }
+        return false;
+    }
+}
