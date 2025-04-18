@@ -190,7 +190,8 @@ public class GameManager : MonoBehaviour
         OptionsScene = 1,
         GameScene = 2,
         Exit = 3,
-        NextLevel = 4
+        NextLevel = 1
+        CreditsScene = 5
     }
     public enum TypeDevice
     {
@@ -199,4 +200,10 @@ public class GameManager : MonoBehaviour
         GAMEPAD,
         MOBILE,
     }
+
+    public void OpenOptionsMenu()
+    {
+    ChangeSceneSelector(TypeScene.OptionsScene);
+    }
+
 }
