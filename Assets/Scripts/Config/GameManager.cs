@@ -71,6 +71,10 @@ public class GameManager : MonoBehaviour
         {
             SceneManager.LoadScene(typeScene.ToString());
         }
+        else if(typeScene == TypeScene.Reload)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
         else
         {
             Application.Quit();
@@ -187,7 +191,9 @@ public class GameManager : MonoBehaviour
         OptionsScene = 1,
         GameScene = 2,
         Exit = 3,
-        NextLevel = 4
+        NextLevel = 4,
+        CreditsScene = 5,
+        Reload = 6,
     }
     public enum TypeDevice
     {
@@ -196,4 +202,22 @@ public class GameManager : MonoBehaviour
         GAMEPAD,
         MOBILE,
     }
+
+    public void LoadNextScene()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+
+        // Verifica si hay una siguiente escena
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("No hay m�s escenas. �Has completado el juego!");
+            //ReloadCurrentScene(); // Recargar la primera escena
+        }
+    }
+
 }
