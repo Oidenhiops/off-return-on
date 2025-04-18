@@ -190,8 +190,8 @@ public class GameManager : MonoBehaviour
         OptionsScene = 1,
         GameScene = 2,
         Exit = 3,
-        NextLevel = 1
-        CreditsScene = 5
+        NextLevel = 1,
+        CreditsScene = 5,
     }
     public enum TypeDevice
     {
@@ -200,10 +200,36 @@ public class GameManager : MonoBehaviour
         GAMEPAD,
         MOBILE,
     }
+    public void OpenCreditsMenu()
+    {
+        SceneManager.LoadScene("CreditsMenu", LoadSceneMode.Additive);
+    }
 
     public void OpenOptionsMenu()
     {
-    ChangeSceneSelector(TypeScene.OptionsScene);
+        SceneManager.LoadScene("OptionMenu", LoadSceneMode.Additive);
+    }
+
+    public void ReloadCurrentScene()
+    {
+    SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void LoadNextScene()
+    {
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        int nextSceneIndex = currentSceneIndex + 1;
+
+        // Verifica si hay una siguiente escena
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+        }
+        else
+        {
+            Debug.LogWarning("No hay m�s escenas. �Has completado el juego!");
+            ReloadCurrentScene(); // Recargar la primera escena
+        }
     }
 
 }
