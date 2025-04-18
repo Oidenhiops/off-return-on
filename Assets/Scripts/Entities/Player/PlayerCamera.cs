@@ -13,18 +13,22 @@ public class PlayerCamera : MonoBehaviour, ManagementCharacter.IDirection
     {
         playerInputs = GetComponent<PlayerInputs>();
         GameManager.Instance.OnDeviceChanged += SetCurrentSpeed;
-        SetCurrentSpeed(GameManager.TypeDevice.PC);
+        SetCurrentSpeed(GameManager.Instance.currentDevice);
     }
 
     private void SetCurrentSpeed(GameManager.TypeDevice device)
     {
-        if (device != GameManager.TypeDevice.PC)
+        if (device == GameManager.TypeDevice.PC)
+        {
+            currentSpeed = speed;
+        }
+        else if (device == GameManager.TypeDevice.GAMEPAD)
         {
             currentSpeed = speed * 50;
         }
-        else
+        else if (device == GameManager.TypeDevice.MOBILE)
         {
-            currentSpeed = speed;
+            currentSpeed = speed * 50;
         }
     }
     public void HandleDirection()
@@ -37,7 +41,7 @@ public class PlayerCamera : MonoBehaviour, ManagementCharacter.IDirection
             orbital.PanAxis.Value,
             playerModel.transform.rotation.z
         );
-        float newTilt = orbital.TiltAxis.Value - playerInputs.playerInputsInfo.lookInput.y * currentSpeed;
+        float newTilt = orbital.TiltAxis.Value - playerInputs.playerInputsInfo.lookInput.y * currentSpeed / 2;
         orbital.TiltAxis.Value = Mathf.Clamp(newTilt, orbital.TiltAxis.Range.x, orbital.TiltAxis.Range.y);
     }
 }
