@@ -1236,6 +1236,30 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Size.x
+      value: 1.2162799
+      objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Size.z
+      value: 0.031591475
+      objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Center.x
+      value: -0.0223521
+      objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Center.y
+      value: -0.0045530167
+      objectReference: {fileID: 0}
+    - target: {fileID: 4516959443967009445, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
+      propertyPath: m_Center.z
+      value: -0.0993682
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -11070,6 +11094,7 @@ MonoBehaviour:
   flashlight: {fileID: 128148089}
   entityController: {fileID: 2053289266}
   playerModel: {fileID: 1683534559}
+  rangeDistToSpawn: 2
 --- !u!114 &1559249648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12157,10 +12182,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 597113917815627036, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2085164359903077729, guid: dbb5441a3fce2ce41872b3d78e0a7f7e, type: 3}
-      propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

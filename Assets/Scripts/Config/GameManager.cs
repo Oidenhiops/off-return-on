@@ -61,8 +61,11 @@ public class GameManager : MonoBehaviour
             case TypeScene.CreditsScene:                
                 SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
                 break;
+            case TypeScene.GameOver:
+                SceneManager.LoadScene("GameOver", LoadSceneMode.Additive);
+                break;
             default:
-                _= ChangeScene(typeScene);
+                _ = ChangeScene(typeScene);
                 break;
         }
     }
@@ -187,6 +190,7 @@ public class GameManager : MonoBehaviour
         CreditsScene = 3,
         Reload = 4,
         Exit = 5,
+        GameOver = 6
     }
     public enum TypeDevice
     {
