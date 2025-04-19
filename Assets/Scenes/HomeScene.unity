@@ -848,6 +848,51 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _unloadAnimator: {fileID: 0}
+--- !u!1 &1192559474
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1192559476}
+  - component: {fileID: 1192559475}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1192559475
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192559474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38644f72ee5bae345b4d19912d928b5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: f77d4befd378e1543bd7dbb7fc8af053, type: 2}
+--- !u!4 &1192559476
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1192559474}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -688.1036, y: 530.1743, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1325495298
 GameObject:
   m_ObjectHideFlags: 0
@@ -1286,8 +1331,8 @@ GameObject:
   - component: {fileID: 4184733591435215498}
   - component: {fileID: 7058364175800984457}
   - component: {fileID: 7225471338449701153}
-  - component: {fileID: 6536366405909380990}
   - component: {fileID: 5791795870587529875}
+  - component: {fileID: 6536366405909380990}
   - component: {fileID: 8597147154206142278}
   m_Layer: 5
   m_Name: OpenCloseScene
@@ -1631,7 +1676,7 @@ Animator:
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 07e108db8626d404e9996086b91f3b32, type: 2}
   m_CullingMode: 0
-  m_UpdateMode: 0
+  m_UpdateMode: 2
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
@@ -1780,7 +1825,6 @@ MonoBehaviour:
   principalDevice: 0
   isPause: 0
   startGame: 0
-  audioMixer: {fileID: 24100000, guid: f77d4befd378e1543bd7dbb7fc8af053, type: 2}
 --- !u!114 &8536079729566799927
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1825,6 +1869,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openCloseSceneAnimator: {fileID: 6536366405909380990}
+  currentLoad: 0
   auto: 1
 --- !u!114 &8911452129451008301
 MonoBehaviour:
@@ -1864,4 +1909,5 @@ SceneRoots:
   - {fileID: 3125982410628686521}
   - {fileID: 5435077908227134116}
   - {fileID: 397539157827161577}
+  - {fileID: 1192559476}
   - {fileID: 1053652626}

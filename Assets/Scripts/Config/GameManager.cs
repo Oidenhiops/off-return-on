@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.InputSystem;
@@ -9,8 +10,6 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
     public ManagementOpenCloseScene openCloseScene;
-    public Coroutine fadeIn;
-    public Coroutine fadeOut;
     public bool isWebGlBuild;
     public TypeDevice _currentDevice;
     public TypeDevice principalDevice;
@@ -29,7 +28,6 @@ public class GameManager : MonoBehaviour
     }
     public bool isPause;
     public bool startGame;
-    public AudioMixer audioMixer;
     void Awake()
     {
         if (Instance == null)
@@ -53,29 +51,26 @@ public class GameManager : MonoBehaviour
     public void ChangeSceneSelector(TypeScene typeScene)
     {
         isPause = false;
+        Time.timeScale = 0;
         switch (typeScene)
         {
             case TypeScene.OptionsScene:
-                isPause = true;
-                if (SceneManager.GetActiveScene().name != "HomeScene") Time.timeScale = 0;
+                isPause = true;                
                 SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);                
                 break;
             case TypeScene.CreditsScene:                
                 SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
                 break;
             default:
-                StartCoroutine(ChangeScene(typeScene));
+                _= ChangeScene(typeScene);
                 break;
         }
     }
-    public IEnumerator ChangeScene(TypeScene typeScene)
+    public async Awaitable ChangeScene(TypeScene typeScene)
     {
-        Time.timeScale = 1;
-        openCloseScene.ResetValues();
-        openCloseScene.openCloseSceneAnimator.Play("Out");
         openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
-        fadeOut = StartCoroutine(FadeOut());
-        yield return new WaitForSecondsRealtime(2);
+        await AudioManager.Instance.FadeOut();
+        while (openCloseScene.openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05));;
         if (typeScene == TypeScene.NextLevel)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
@@ -98,85 +93,12 @@ public class GameManager : MonoBehaviour
         {
             Cursor.visible = true;
         }
-        ChangedScene();
+        await Task.Delay(TimeSpan.FromSeconds(0.05));
+        _= openCloseScene.WaitFinishCloseAnimation();
     }
     public void EnterScene()
     {
         openCloseScene.openCloseSceneAnimator.SetBool("Out", false);
-    }
-    public void ChangedScene()
-    {
-        StopCoroutine(fadeOut);
-    }
-    public IEnumerator FadeIn()
-    {
-        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
-        float currentVolumen;
-        float volume;
-        if (audioMixer.GetFloat(ManagementOptions.TypeSound.Master.ToString(), out volume))
-        {
-            currentVolumen = volume;
-        }
-        else
-        {
-            currentVolumen = -80f;
-        }
-        while (currentVolumen < decibelsMaster)
-        {
-            if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
-            currentVolumen++;
-            audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), currentVolumen);
-            yield return new WaitForSecondsRealtime(0.05f);
-        }
-    }
-    public IEnumerator FadeOut()
-    {
-        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
-        while (decibelsMaster > -80)
-        {
-            if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute) break;
-            decibelsMaster -= 1;
-            audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), decibelsMaster);
-            yield return new WaitForSecondsRealtime(0.05f);
-        }
-    }
-    public void PlayASound(AudioClip audioClip)
-    {
-        AudioSource audioBox = Instantiate(Resources.Load<GameObject>("Prefabs/AudioBox/AudioBox")).GetComponent<AudioSource>();
-        audioBox.clip = audioClip;
-        audioBox.Play();
-        Destroy(audioBox.gameObject, audioBox.clip.length);
-    }
-    public void PlayASound(AudioClip audioClip, float initialRandomPitch)
-    {
-        AudioSource audioBox = Instantiate(Resources.Load<GameObject>("Prefabs/AudioBox/AudioBox")).GetComponent<AudioSource>();
-        audioBox.clip = audioClip;
-        audioBox.pitch = UnityEngine.Random.Range(initialRandomPitch - 0.1f, initialRandomPitch + 0.1f);
-        audioBox.Play();
-        Destroy(audioBox.gameObject, audioBox.clip.length);
-    }
-    public void SetAudioMixerData()
-    {
-        float decibelsMaster = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100);
-        float decibelsBGM = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue / 100);
-        float decibelsSFX = 20 * Mathf.Log10(GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue / 100);
-
-        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue == 0)
-        {
-            decibelsMaster = -80;
-        }
-        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue == 0)
-        {
-            decibelsBGM = -80;
-        }
-        if (GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue == 0)
-        {
-            decibelsSFX = -80;
-        }
-        audioMixer.SetFloat(ManagementOptions.TypeSound.BGM.ToString(), decibelsBGM);
-        audioMixer.SetFloat(ManagementOptions.TypeSound.SFX.ToString(), decibelsSFX);
-        audioMixer.SetFloat(ManagementOptions.TypeSound.Master.ToString(), GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute ? -80 : decibelsMaster);
-        GameData.Instance.SaveGameData();
     }
     public void SetInitialDevice()
     {

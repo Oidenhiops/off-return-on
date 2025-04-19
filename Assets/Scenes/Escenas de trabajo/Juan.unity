@@ -1636,6 +1636,51 @@ Transform:
   - {fileID: 393878106}
   m_Father: {fileID: 2113226061}
   m_LocalEulerAnglesHint: {x: 0, y: -90, z: 0}
+--- !u!1 &940723960
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 940723962}
+  - component: {fileID: 940723961}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &940723961
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940723960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 38644f72ee5bae345b4d19912d928b5e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioMixer: {fileID: 24100000, guid: f77d4befd378e1543bd7dbb7fc8af053, type: 2}
+--- !u!4 &940723962
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 940723960}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -688.1036, y: 530.1743, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1011416856
 GameObject:
   m_ObjectHideFlags: 0
@@ -3674,9 +3719,9 @@ MonoBehaviour:
   openCloseScene: {fileID: 6671248910720382483}
   isWebGlBuild: 0
   _currentDevice: 0
+  principalDevice: 0
   isPause: 0
   startGame: 0
-  audioMixer: {fileID: 24100000, guid: f77d4befd378e1543bd7dbb7fc8af053, type: 2}
 --- !u!114 &6671248910720382483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3690,6 +3735,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openCloseSceneAnimator: {fileID: 8174012283329111595}
+  currentLoad: 0
   auto: 1
 --- !u!114 &6749775481705939298
 MonoBehaviour:
@@ -3710,6 +3756,7 @@ MonoBehaviour:
         characterSelectedName: 
     configurationsInfo:
       _currentLanguage: 0
+      FpsLimit: 0
       resolutionConfiguration:
         isFullScreen: 0
         allResolutions: []
@@ -3852,6 +3899,7 @@ SceneRoots:
   - {fileID: 404007234008554312}
   - {fileID: 52778967276518380}
   - {fileID: 6969176181005814769}
+  - {fileID: 940723962}
   - {fileID: 3341228377143776444}
   - {fileID: 8122427790248603059}
   - {fileID: 130732270}
