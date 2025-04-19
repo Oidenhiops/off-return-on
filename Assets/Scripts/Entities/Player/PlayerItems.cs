@@ -9,6 +9,18 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
     public ManagementCharacter managementCharacter;
     public Item[] items;
     public int itemPos = 0;
+    public Item _currentItem;
+    public Action<Item> OnCurrentItemChange;
+    public Item currentItem{
+        get => _currentItem;
+        set{
+            if (_currentItem != value)
+            {
+                _currentItem = value;
+                OnCurrentItemChange?.Invoke(_currentItem);
+            }
+        }
+    }
     void Start()
     {
         playerInputs = GetComponent<PlayerInputs>();
@@ -45,20 +57,36 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         {
             itemPos = items.Length - 1;
         }
-        if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(true);
+        if (items[itemPos].itemInfo.itemSO)
+        {
+            items[itemPos].itemInfo.itemObj.SetActive(true);
+            currentItem = items[itemPos];
+        }
+        else
+        {
+            currentItem = null;
+        }
     }
     void ChangeItem(int pos)
     {
         if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(false);
         itemPos = pos;
-        if (items[itemPos].itemInfo.itemSO) items[itemPos].itemInfo.itemObj.SetActive(true);
+        if (items[itemPos].itemInfo.itemSO)
+        {
+            items[itemPos].itemInfo.itemObj.SetActive(true);
+            currentItem = items[itemPos];
+        }
+        else
+        {
+            currentItem = null;
+        }
     }
     public void PickUpItem(ItemInteract.ItemInfo itemInfo)
     {
         if (items[itemPos].amount + 1 > itemInfo.itemSO.maxItems) return;
         items[itemPos].amount++;
         items[itemPos].itemInfo = itemInfo;
-        ChangeLayer("Hand");
+        ChangeLayer("Hand", itemInfo.itemObj);
         itemInfo.managementObjectInteract.canInteract = false;
         itemInfo.managementObjectInteract.DisableBanner();
         itemInfo.rb.isKinematic = true;
@@ -66,17 +94,22 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         itemInfo.itemObj.transform.SetParent(managementCharacter.character.rightHand);
         itemInfo.itemObj.transform.localPosition = Vector3.zero;
         itemInfo.itemObj.transform.localRotation = Quaternion.identity;
+        currentItem = items[itemPos];
     }
     public void DropItem(int index)
     {
-        ChangeLayer("Interact");
+        ChangeLayer("Interact", items[index].itemInfo.itemObj);
         items[index].itemInfo.rb.isKinematic = false;
         items[index].itemInfo.collider.enabled = true;
         items[index].itemInfo.itemObj.transform.SetParent(null);
         items[index].itemInfo.managementObjectInteract.canInteract = true;
         items[index].itemInfo.itemInteract.DropItem(managementCharacter);
         items[index].amount--;
-        if (items[index].amount == 0) items[index].itemInfo = new ItemInteract.ItemInfo();
+        if (items[index].amount == 0)
+        {
+            items[index].itemInfo = new ItemInteract.ItemInfo();
+            currentItem = null;
+        }
     }
     public void UseItem()
     {
@@ -85,11 +118,11 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
             items[itemPos].itemInfo.itemInteract.UseItem(managementCharacter);
         }
     }
-    void ChangeLayer(String nameLayer)
+    void ChangeLayer(String nameLayer, GameObject itemToChangeLayer)
     {
-        for(int i = 1; i < gameObject.transform.childCount; i++)
+        for(int i = 1; i < itemToChangeLayer.transform.childCount; i++)
         {
-            gameObject.transform.GetChild(i).gameObject.layer = LayerMask.NameToLayer(nameLayer);
+            itemToChangeLayer.transform.GetChild(i).gameObject.layer = LayerMask.NameToLayer(nameLayer);
         }
     }
     [Serializable] public class Item

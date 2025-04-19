@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - Doll
   layers:
   - Default
   - TransparentFX
@@ -29,8 +30,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - Entity
+  - Obstacles
   - 
   - 
   - 

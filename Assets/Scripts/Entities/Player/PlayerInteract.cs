@@ -7,13 +7,14 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
     PlayerInputs playerInputs;
     public ManagementCharacter managementCharacter;
     public float rangeRay;
-    public ManagementObjectInteract _currentInteract;
-    public Action<ManagementObjectInteract> OnCurrentObjectInteract;
-    public ManagementObjectInteract currentInteract{
-        get => _currentInteract;
+    public ManagementObjectInteract _objectInteract;
+    public Action<ManagementObjectInteract> OnObjectInteractChange;
+    public ManagementObjectInteract objectInteract
+    {
+        get => _objectInteract;
         set
         {
-            if (_currentInteract != value)
+            if (_objectInteract != value)
             {
                 if (value)
                 {
@@ -21,10 +22,10 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
                 }
                 else
                 {
-                    ValidateShowBannerInteract(_currentInteract, false);
+                    ValidateShowBannerInteract(_objectInteract, false);
                 }
-                _currentInteract = value;
-                OnCurrentObjectInteract?.Invoke(_currentInteract);
+                _objectInteract = value;
+                OnObjectInteractChange?.Invoke(_objectInteract);
             }
         }
     }
@@ -39,13 +40,13 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
     public void FixedUpdate()
     {
         if (!GameManager.Instance.startGame || !managementCharacter.character.isActive) return;
-        currentInteract = CheckInteract();
+        objectInteract = CheckInteract();
     }
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (currentInteract)
+        if (objectInteract)
         {
-            currentInteract.Interact(managementCharacter);
+            objectInteract.Interact(managementCharacter);
         }
     }
     public void ValidateShowBannerInteract(ManagementObjectInteract objectToInteract, bool canShow)
@@ -76,7 +77,7 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
     void OnDrawGizmos()
     {
         if (!managementCharacter.character.collidersInfo.useGizmos) return;
-        Gizmos.color = currentInteract ? Color.cyan : Color.blue;
+        Gizmos.color = objectInteract ? Color.cyan : Color.blue;
         Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * rangeRay);
     }
 }

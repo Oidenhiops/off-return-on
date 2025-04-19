@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class ManagementCharacter : MonoBehaviour
@@ -50,7 +51,7 @@ public class ManagementCharacter : MonoBehaviour
             return hit.Length > 0 ? hit[0].gameObject.tag : "";
         }
         public async Awaitable InitializeCharacter(){
-            await Awaitable.NextFrameAsync();
+            await Task.Delay(TimeSpan.FromSeconds(0.05));
             isActive = true;
         }
         [Serializable] public class CollidersInfo

@@ -1,14 +1,27 @@
 using System;
 using System.Collections;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ManagementOpenCloseScene : MonoBehaviour
 {
     public Animator openCloseSceneAnimator;
-    [SerializeField] Image openCloseSceneLoader;
-    [NonSerialized] public bool finishLoad = false;
-    float currentLoad = 0;
+    public bool _finishLoad;
+    public Action<bool>OnFinishLoadChange;
+    public bool finishLoad
+    {
+        get => _finishLoad;
+        set
+        {
+            if (_finishLoad != value)
+            {
+                _finishLoad = value;
+                OnFinishLoadChange?.Invoke(_finishLoad);
+            }
+        }
+    }
+    public float currentLoad = 0;
     public bool auto = false;
     void Start()
     {
@@ -19,10 +32,8 @@ public class ManagementOpenCloseScene : MonoBehaviour
         if (!finishLoad)
         {
             float value = currentLoad / 100 > 0 ? currentLoad / 100 : 1;
-            openCloseSceneLoader.fillAmount = Mathf.Lerp(openCloseSceneLoader.fillAmount, currentLoad / 100, value * Time.deltaTime);
-            if (openCloseSceneLoader.fillAmount >= 0.99)
+            if (currentLoad == 100)
             {
-                openCloseSceneLoader.fillAmount = 1;
                 finishLoad = true;
                 GameManager.Instance.EnterScene();
                 FinishLoad();
@@ -37,8 +48,8 @@ public class ManagementOpenCloseScene : MonoBehaviour
             {
                 break;
             }
-            currentLoad += 50;
-            yield return new WaitForSeconds(2);
+            currentLoad += 20;
+            yield return new WaitForSecondsRealtime(1);
         }
     }
     public void AdjustLoading(float amount)
@@ -47,7 +58,14 @@ public class ManagementOpenCloseScene : MonoBehaviour
     }
     public void FinishLoad()
     {
+        Time.timeScale = 1;
+        _= AudioManager.Instance.FadeIn();
         GameManager.Instance.startGame = true;
+    }
+    public async Awaitable WaitFinishCloseAnimation()
+    {
+        while (openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05));
+        ResetValues();
     }
     public void ResetValues()
     {
@@ -55,7 +73,6 @@ public class ManagementOpenCloseScene : MonoBehaviour
         {
             currentLoad = 0;
             finishLoad = false;
-            openCloseSceneLoader.fillAmount = 0;
             StartCoroutine(AutoCharge());
         }
     }
