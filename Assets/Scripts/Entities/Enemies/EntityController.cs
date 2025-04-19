@@ -12,11 +12,17 @@ public class EntityController : MonoBehaviour
     [SerializeField] private float visionAngle = 60f;
 
     [Header("Alert Settings")]
-    [SerializeField] private float alertCameraTime = 2f;       // Tiempo de animación + cámara
-    [SerializeField] private float gracePeriod = 10f;          // Tiempo para esconderse
-    [SerializeField] private Camera entityCamera;              // Cámara de la entidad
-    [SerializeField] private AudioClip entityRoarSFX;          // Sonido de alerta
-    [SerializeField] private AudioClip suspenseSFX;          // Sonido de suspenso 12 segundos
+    [SerializeField] private float alertCameraTime = 2f;
+    [SerializeField] private float gracePeriod = 10f;
+    [SerializeField] private Camera entityCamera;
+    [SerializeField] private AudioClip entityRoarSFX;
+    [SerializeField] private AudioClip entityDangerSFX;
+
+    [Header("Camera Shake")]
+    [SerializeField] private float shakeIntensity = 0.05f;   // Intensidad base
+    [SerializeField] private float shakeFrequency = 2f;      // Oscilaciones por segundo
+    [SerializeField] private Vector3 positionShakeAxis = new Vector3(1, 1, 0); // Ejes afectados
+    [SerializeField] private Vector3 rotationShakeAxis = new Vector3(0, 0, 1); 
 
     [Header("References")]
     [SerializeField] private Transform player;
@@ -25,15 +31,19 @@ public class EntityController : MonoBehaviour
     private NavMeshAgent agent;
     private Animator animatorEntity;
     private Vector3 patrolCenter;
+    private Vector3 originalCamPos;
+    private Quaternion originalCamRot;
     private bool isChasing = false;
     private bool isInvestigating = false;
-    private bool isInAlertState = false;                       // Evita superposición de alertas
+    private bool isInAlertState = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animatorEntity = GetComponent<Animator>();
         patrolCenter = transform.position;
+        originalCamPos = entityCamera.transform.localPosition;
+        originalCamRot = entityCamera.transform.localRotation;
         PatrolNewPoint();
     }
 
@@ -74,7 +84,7 @@ public class EntityController : MonoBehaviour
         animatorEntity.SetBool("IsEntityWalk", true);
     }
 
-    // ===== ALERTA POR GRITO DE MUÑECA =====
+    // ===== ALERTA =====
     public void OnDollScream(Vector3 dollPosition)
     {
         if (!isInAlertState)
@@ -85,30 +95,59 @@ public class EntityController : MonoBehaviour
     {
         isInAlertState = true;
 
-        // 1. Detener movimiento y activar animación/cámara
-        PlaySound(suspenseSFX);
+        // 1. Configuración inicial
+        PlaySound(entityDangerSFX);
         agent.isStopped = true;
         animatorEntity.SetBool("IsEntityAngry", true);
         PlaySound(entityRoarSFX);
         entityCamera.gameObject.SetActive(true);
 
-        // 2. Esperar tiempo de la animación
-        yield return new WaitForSeconds(alertCameraTime);
+        // 2. Vibración tipo onda
+        float elapsed = 0f;
+        Vector3 initialCamPos = entityCamera.transform.localPosition;
+        Quaternion initialCamRot = entityCamera.transform.localRotation;
 
-        // 3. Desactivar cámara y reiniciar animación
+        while (elapsed < alertCameraTime)
+        {
+            // Cálculo de onda suavizada (sinusoidal)
+            float wave = Mathf.Sin(elapsed * shakeFrequency * Mathf.PI * 2);
+            float damp = 1 - (elapsed / alertCameraTime); // Reduce intensidad hacia el final
+
+            // Posición
+            Vector3 posOffset = new Vector3(
+                wave * shakeIntensity * positionShakeAxis.x * damp,
+                wave * shakeIntensity * positionShakeAxis.y * damp,
+                wave * shakeIntensity * positionShakeAxis.z * damp
+            );
+
+            // Rotación
+            Vector3 rotOffset = new Vector3(
+                wave * shakeIntensity * 10 * rotationShakeAxis.x * damp,
+                wave * shakeIntensity * 10 * rotationShakeAxis.y * damp,
+                wave * shakeIntensity * 10 * rotationShakeAxis.z * damp
+            );
+
+            entityCamera.transform.localPosition = initialCamPos + posOffset;
+            entityCamera.transform.localRotation = initialCamRot * Quaternion.Euler(rotOffset);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        // 3. Restaurar valores
+        entityCamera.transform.localPosition = originalCamPos;
+        entityCamera.transform.localRotation = originalCamRot;
         entityCamera.gameObject.SetActive(false);
         animatorEntity.SetBool("IsEntityAngry", false);
 
         // 4. Movimiento hacia la muñeca
         agent.isStopped = false;
         agent.SetDestination(dollPosition);
-        agent.speed = chaseSpeed * 1.5f;  // Velocidad aumentada
+        agent.speed = chaseSpeed * 1.5f;
         isInvestigating = true;
 
-        // 5. Esperar tiempo de gracia (10s)
+        // 5. Tiempo de gracia
         yield return new WaitForSeconds(gracePeriod);
-
-        // 6. Iniciar búsqueda activa
         StartCoroutine(SearchPlayerRoutine());
         isInAlertState = false;
     }
@@ -138,13 +177,12 @@ public class EntityController : MonoBehaviour
         PatrolNewPoint();
     }
 
-    // ===== DETECCIÓN DEL JUGADOR =====
+    // ===== DETECCIÓN =====
     private void CheckForPlayer()
     {
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
-        // Detección por visión
         if (distanceToPlayer < visionRange)
         {
             float angle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
@@ -161,7 +199,6 @@ public class EntityController : MonoBehaviour
             }
         }
 
-        // Detección por proximidad
         if (distanceToPlayer < 2f)
         {
             PlayerDeath();
@@ -177,7 +214,6 @@ public class EntityController : MonoBehaviour
     private void PlayerDeath()
     {
         Debug.Log("¡Jugador eliminado!");
-        // Lógica de Game Over aquí
     }
 
     private void PlaySound(AudioClip clip)
