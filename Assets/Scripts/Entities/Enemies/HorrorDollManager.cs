@@ -12,8 +12,9 @@ public class HorrorDollManager : MonoBehaviour
     [SerializeField] private GameObject dollPrefab;
     [SerializeField] private AudioClip dollLaughSFX;
     [SerializeField] private AudioClip dollScreamSFX;
-    [SerializeField] private Light flashlight;
+    [SerializeField] private FlashLigth flashlight;
     [SerializeField] private EntityController entityController;
+    [SerializeField] Transform playerModel;
 
     private GameObject currentDoll;
     private bool isDollActive = false;
@@ -30,11 +31,11 @@ public class HorrorDollManager : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
             
-            Vector3 spawnPos = transform.position - transform.forward * spawnDistanceBehind;
+            Vector3 spawnPos = playerModel.position - playerModel.forward * spawnDistanceBehind;
             currentDoll = Instantiate(dollPrefab, spawnPos, Quaternion.identity);
             currentDoll.transform.LookAt(transform);
 
-            AudioSource.PlayClipAtPoint(dollLaughSFX, transform.position);
+            AudioSource.PlayClipAtPoint(dollLaughSFX, playerModel.transform.position);
             isDollActive = true;
 
             StartCoroutine(DollThreatRoutine());
@@ -48,7 +49,7 @@ public class HorrorDollManager : MonoBehaviour
 
         while (timer < reactionTime)
         {
-            if (flashlight.enabled && IsDollHitByLight())
+            if (flashlight._light.enabled && IsDollHitByLight())
             {
                 Destroy(currentDoll);
                 isDollActive = false;
@@ -62,7 +63,7 @@ public class HorrorDollManager : MonoBehaviour
         if (isDollActive)
         {
             // Alertamos a la entidad que venga hacia nosotros
-            AudioSource.PlayClipAtPoint(dollScreamSFX, transform.position);
+            AudioSource.PlayClipAtPoint(dollScreamSFX, playerModel.position);
             entityController.OnDollScream(currentDoll.transform.position);
             Destroy(currentDoll);
             isDollActive = false;
@@ -72,14 +73,17 @@ public class HorrorDollManager : MonoBehaviour
     //Raycast para apuntar a la muñeca con la linterna
     private bool IsDollHitByLight()
     {
-        RaycastHit hit;
-        Vector3 rayOrigin = flashlight.transform.position;
-        Vector3 rayDirection = flashlight.transform.forward;
-
-        if (Physics.Raycast(rayOrigin, rayDirection, out hit, flashlight.range))
+        Ray ray = Camera.main.ScreenPointToRay(new Vector3(Screen.width / 2, Screen.height / 2));
+        if (Physics.Raycast(ray, out RaycastHit hit, flashlight._light.enabled ? flashlight._light.range : 0))
         {
             return hit.collider.CompareTag("Doll");
         }
         return false;
+    }
+    void OnDrawGizmos()
+    {
+        float rangeRay = flashlight._light.enabled ? flashlight._light.range : 0;
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * rangeRay);
     }
 }
