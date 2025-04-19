@@ -23,6 +23,7 @@ public class HorrorDollManager : MonoBehaviour
         StartCoroutine(SpawnDollRoutine());
     }
 
+    // Spawneamos la Muñeca detrás del player y activamos el metodo para poder destruirla por 5 segundos
     IEnumerator SpawnDollRoutine()
     {
         while (true)
@@ -40,6 +41,7 @@ public class HorrorDollManager : MonoBehaviour
         }
     }
 
+    // Si apuntamos con la linterna y esta encendida, Destruimos la Muñeca y no llama a la entidad
     IEnumerator DollThreatRoutine()
     {
         float timer = 0f;
@@ -59,7 +61,7 @@ public class HorrorDollManager : MonoBehaviour
 
         if (isDollActive)
         {
-            // En vez de spawnear entidad, alerta a la existente
+            // Alertamos a la entidad que venga hacia nosotros
             AudioSource.PlayClipAtPoint(dollScreamSFX, transform.position);
             entityController.OnDollScream(currentDoll.transform.position);
             Destroy(currentDoll);
@@ -67,6 +69,7 @@ public class HorrorDollManager : MonoBehaviour
         }
     }
 
+    //Raycast para apuntar a la muñeca con la linterna
     private bool IsDollHitByLight()
     {
         RaycastHit hit;
