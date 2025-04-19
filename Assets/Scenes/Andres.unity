@@ -11171,6 +11171,10 @@ MonoBehaviour:
   speed: 5
   playerPos: {fileID: 2024746532}
   playerCollider: {fileID: 1559249655}
+  rangeRay: 0.5
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!114 &1559249652
 MonoBehaviour:
   m_ObjectHideFlags: 0

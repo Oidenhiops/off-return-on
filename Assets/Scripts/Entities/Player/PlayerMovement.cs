@@ -14,11 +14,13 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
     float otherSpeed = 1;
     [SerializeField] Transform playerPos;
     [SerializeField] CapsuleCollider playerCollider;
+    bool isCrouch = false;
+    public float rangeRay;
+    public LayerMask layerMask;
     void Start()
     {
         playerInputs = GetComponent<PlayerInputs>();
         playerInputs.playerControls.Player.Crouch.performed += OnCrouch;
-        playerInputs.playerControls.Player.Crouch.canceled += OnCrouch;
     }
     public void HandleMove()
     {
@@ -43,6 +45,29 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
         movementDirection.z *= speed * otherSpeed;
         movementDirection.y = managementCharacter.character.rb.linearVelocity.y;
         managementCharacter.character.rb.linearVelocity = movementDirection;
+        ValidateStandUp();
+    }
+    void ValidateStandUp()
+    {
+        if (isCrouch && !playerInputs.playerControls.Player.Crouch.IsInProgress())
+        {
+            if (CanStandUp())
+            {
+                isCrouch = false;
+                otherSpeed = 1;
+                playerPos.localPosition = new Vector3(0, 0, 0);
+                playerCollider.center = new Vector3(0, 0.75f, 0);
+                playerCollider.height = 1.5f;
+            }
+        }
+    }
+    bool CanStandUp()
+    {        
+        if (Physics.Raycast(transform.position, Vector3.up * rangeRay, rangeRay, layerMask))
+        {
+            return false;
+        }
+        return true;
     }
     void OnCrouch(InputAction.CallbackContext context)
     {
@@ -52,13 +77,7 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
             playerPos.localPosition = new Vector3(0, -1.1f, 0);
             playerCollider.center = new Vector3(0, 0.2f, 0);
             playerCollider.height = 0.2f;
-        }
-        else
-        {
-            otherSpeed = 1;
-            playerPos.localPosition = new Vector3(0, 0, 0);
-            playerCollider.center = new Vector3(0, 0.75f, 0);
-            playerCollider.height = 1.5f;
+            isCrouch = true;
         }
     }
     void CamDirection()
@@ -71,5 +90,10 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
 
         camForward = camForwardDirection.normalized;
         camRight = camRightDirection.normalized;
+    }
+    void OnDrawGizmos()
+    {
+        Gizmos.color = CanStandUp() ? Color.green : Color.red;
+        Gizmos.DrawRay(transform.position, Vector3.up * rangeRay);
     }
 }
