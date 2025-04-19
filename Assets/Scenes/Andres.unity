@@ -11070,6 +11070,7 @@ MonoBehaviour:
   flashlight: {fileID: 128148089}
   entityController: {fileID: 2053289266}
   playerModel: {fileID: 1683534559}
+  rangeDistToSpawn: 2
 --- !u!114 &1559249648
 MonoBehaviour:
   m_ObjectHideFlags: 0

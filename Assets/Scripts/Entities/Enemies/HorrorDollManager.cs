@@ -15,7 +15,7 @@ public class HorrorDollManager : MonoBehaviour
     [SerializeField] private FlashLigth flashlight;
     [SerializeField] private EntityController entityController;
     [SerializeField] Transform playerModel;
-
+    public float rangeDistToSpawn;
     private GameObject currentDoll;
     private bool isDollActive = false;
 
@@ -31,7 +31,8 @@ public class HorrorDollManager : MonoBehaviour
         {
             yield return new WaitForSeconds(spawnInterval);
             
-            Vector3 spawnPos = playerModel.position - playerModel.forward * spawnDistanceBehind;
+            Vector3 spawnPos = DollSpawnPos();
+            
             currentDoll = Instantiate(dollPrefab, spawnPos, Quaternion.identity);
             currentDoll.transform.LookAt(transform);
 
@@ -41,7 +42,14 @@ public class HorrorDollManager : MonoBehaviour
             StartCoroutine(DollThreatRoutine());
         }
     }
-
+    public Vector3 DollSpawnPos()
+    {        
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, -playerModel.transform.forward, out RaycastHit hit, rangeDistToSpawn))
+        {
+            return hit.point;
+        }
+        return playerModel.position - playerModel.forward * spawnDistanceBehind;
+    }
     // Si apuntamos con la linterna y esta encendida, Destruimos la Muñeca y no llama a la entidad
     IEnumerator DollThreatRoutine()
     {
@@ -85,5 +93,15 @@ public class HorrorDollManager : MonoBehaviour
         float rangeRay = flashlight._light.enabled ? flashlight._light.range : 0;
         Gizmos.color = Color.cyan;
         Gizmos.DrawRay(Camera.main.transform.position, Camera.main.transform.forward * rangeRay);
+
+        if (Physics.Raycast(transform.position + Vector3.up * 0.5f, -playerModel.transform.forward, out RaycastHit hit, rangeDistToSpawn))
+        {
+            Gizmos.color = Color.cyan;
+        }
+        else
+        {
+            Gizmos.color = Color.blue;
+        }
+        Gizmos.DrawRay(transform.position + Vector3.up * 0.5f, -playerModel.transform.forward * rangeDistToSpawn);
     }
 }
