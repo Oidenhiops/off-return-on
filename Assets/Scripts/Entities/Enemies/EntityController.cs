@@ -14,28 +14,35 @@ public class EntityController : MonoBehaviour
     [Header("Alert Settings")]
     [SerializeField] private float alertCameraTime = 2f;
     [SerializeField] private float gracePeriod = 10f;
+    [SerializeField] private float delayBeforeChase = 15f; // Tiempo de espera antes de moverse
     [SerializeField] private Camera entityCamera;
     [SerializeField] private AudioClip entityRoarSFX;
     [SerializeField] private AudioClip entityDangerSFX;
 
+    [Header("Detección por Altura")]
+    [SerializeField] private float hideHeight = 0.4f; // Altura de escondite
+    [SerializeField] private Light flashlight;        // Linterna del jugador
+
     [Header("Camera Shake")]
-    [SerializeField] private float shakeIntensity = 0.05f;   // Intensidad base
-    [SerializeField] private float shakeFrequency = 2f;      // Oscilaciones por segundo
-    [SerializeField] private Vector3 positionShakeAxis = new Vector3(1, 1, 0); // Ejes afectados
-    [SerializeField] private Vector3 rotationShakeAxis = new Vector3(0, 0, 1); 
+    [SerializeField] private float shakeIntensity = 0.05f;
+    [SerializeField] private float shakeFrequency = 2f;
+    [SerializeField] private Vector3 positionShakeAxis = new Vector3(1, 1, 0);
+    [SerializeField] private Vector3 rotationShakeAxis = new Vector3(0, 0, 1);
 
     [Header("References")]
     [SerializeField] private Transform player;
-    [SerializeField] private AudioClip detectionSound;
 
+    // Variables privadas
     private NavMeshAgent agent;
     private Animator animatorEntity;
     private Vector3 patrolCenter;
     private Vector3 originalCamPos;
     private Quaternion originalCamRot;
+    private Vector3 lastKnownPlayerPosition; // Última posición registrada del jugador
     private bool isChasing = false;
     private bool isInvestigating = false;
     private bool isInAlertState = false;
+    private bool isPlayerHiding = false;      // ¿Está el jugador escondido?
 
     void Start()
     {
@@ -88,39 +95,38 @@ public class EntityController : MonoBehaviour
     public void OnDollScream(Vector3 dollPosition)
     {
         if (!isInAlertState)
+        {
+            lastKnownPlayerPosition = player.position; // Guardamos la posición ACTUAL del jugador
             StartCoroutine(AlertSequence(dollPosition));
+        }
     }
 
     IEnumerator AlertSequence(Vector3 dollPosition)
     {
         isInAlertState = true;
 
-        // 1. Configuración inicial
+        // 1. Animación y efectos iniciales
         PlaySound(entityDangerSFX);
         agent.isStopped = true;
         animatorEntity.SetBool("IsEntityAngry", true);
-        PlaySound(entityRoarSFX);
         entityCamera.gameObject.SetActive(true);
 
-        // 2. Vibración tipo onda
+        // 2. Vibración de cámara o efecto shaking
         float elapsed = 0f;
         Vector3 initialCamPos = entityCamera.transform.localPosition;
         Quaternion initialCamRot = entityCamera.transform.localRotation;
 
         while (elapsed < alertCameraTime)
         {
-            // Cálculo de onda suavizada (sinusoidal)
             float wave = Mathf.Sin(elapsed * shakeFrequency * Mathf.PI * 2);
-            float damp = 1 - (elapsed / alertCameraTime); // Reduce intensidad hacia el final
+            float damp = 1 - (elapsed / alertCameraTime);
 
-            // Posición
             Vector3 posOffset = new Vector3(
                 wave * shakeIntensity * positionShakeAxis.x * damp,
                 wave * shakeIntensity * positionShakeAxis.y * damp,
                 wave * shakeIntensity * positionShakeAxis.z * damp
             );
 
-            // Rotación
             Vector3 rotOffset = new Vector3(
                 wave * shakeIntensity * 10 * rotationShakeAxis.x * damp,
                 wave * shakeIntensity * 10 * rotationShakeAxis.y * damp,
@@ -134,19 +140,22 @@ public class EntityController : MonoBehaviour
             yield return null;
         }
 
-        // 3. Restaurar valores
+        // 3. Restaurar cámara luego del efecto shaking
         entityCamera.transform.localPosition = originalCamPos;
         entityCamera.transform.localRotation = originalCamRot;
         entityCamera.gameObject.SetActive(false);
         animatorEntity.SetBool("IsEntityAngry", false);
 
-        // 4. Movimiento hacia la muñeca
+        // 4. Esperar 15s antes de moverse
+        yield return new WaitForSeconds(delayBeforeChase);
+
+        // 5. Moverse a la última posición conocida del jugador
         agent.isStopped = false;
-        agent.SetDestination(dollPosition);
-        agent.speed = chaseSpeed * 1.5f;
+        agent.SetDestination(lastKnownPlayerPosition);
+        agent.speed = chaseSpeed * 0.8f; // Velocidad reducida para "buscar"
         isInvestigating = true;
 
-        // 5. Tiempo de gracia
+        // 6. Tiempo de búsqueda activa
         yield return new WaitForSeconds(gracePeriod);
         StartCoroutine(SearchPlayerRoutine());
         isInAlertState = false;
@@ -165,10 +174,26 @@ public class EntityController : MonoBehaviour
     {
         float searchTime = 10f;
         float timer = 0f;
+        Vector3 searchCenter = lastKnownPlayerPosition;
 
         while (timer < searchTime)
         {
-            ChasePlayer();
+            if (!isPlayerHiding)
+            {
+                ChasePlayer();
+            }
+            else
+            {
+                // Buscarmos en puntos aleatorios cerca de la última posición
+                if (agent.remainingDistance < 1f)
+                {
+                    Vector3 randomPoint = searchCenter + Random.insideUnitSphere * 5f;
+                    NavMeshHit hit;
+                    NavMesh.SamplePosition(randomPoint, out hit, 5f, NavMesh.AllAreas);
+                    agent.SetDestination(hit.position);
+                }
+            }
+
             timer += Time.deltaTime;
             yield return null;
         }
@@ -177,13 +202,19 @@ public class EntityController : MonoBehaviour
         PatrolNewPoint();
     }
 
-    // ===== DETECCIÓN =====
+    // ===== DETECCIÓN DEL PLAYER =====
     private void CheckForPlayer()
     {
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
+        float playerHeight = player.position.y;
 
-        if (distanceToPlayer < visionRange)
+        // Verificamos condiciones de escondite
+        bool isUnderBed = playerHeight <= hideHeight;
+        bool isFlashlightOn = (flashlight != null) && flashlight.enabled;
+        isPlayerHiding = isUnderBed && !isFlashlightOn;
+
+        if (distanceToPlayer < visionRange && !isPlayerHiding)
         {
             float angle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
             if (angle < visionAngle / 2)
@@ -199,16 +230,19 @@ public class EntityController : MonoBehaviour
             }
         }
 
-        if (distanceToPlayer < 2f)
+        if (distanceToPlayer < 2f && !isPlayerHiding)
         {
-            PlayerDeath();
+            PlayerDeath();// Activaremos la Animacion Screemer de Muerte
         }
     }
 
     private void ChasePlayer()
     {
-        agent.SetDestination(player.position);
-        agent.speed = chaseSpeed;
+        if (!isPlayerHiding) // Solo persigue si el jugador no está escondido
+        {
+            agent.SetDestination(player.position);
+            agent.speed = chaseSpeed;
+        }
     }
 
     private void PlayerDeath()
