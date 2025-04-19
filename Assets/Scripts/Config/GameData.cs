@@ -28,13 +28,20 @@ public class GameData : MonoBehaviour
         saveData = ReadDataFromJson();
         LoadCSV();
         SetResolutionData();
-        await SetInitialMixerData();
-        GameManager.Instance.StartCoroutine(GameManager.Instance.FadeIn());
+        await InitializeAudioMixerData();
+        GameManager.Instance.StartCoroutine(AudioManager.Instance.FadeIn());
     }
-    async Awaitable SetInitialMixerData()
+    async Awaitable InitializeAudioMixerData()
     {
         await Awaitable.NextFrameAsync();
-        GameManager.Instance.SetAudioMixerData();
+        float decibelsBGM = 20 * Mathf.Log10(saveData.configurationsInfo.soundConfiguration.BGMalue / 100);
+        float decibelsSFX = 20 * Mathf.Log10(saveData.configurationsInfo.soundConfiguration.SFXalue / 100);
+        if (saveData.configurationsInfo.soundConfiguration.BGMalue == 0) decibelsBGM = -80;
+        if (saveData.configurationsInfo.soundConfiguration.SFXalue == 0) decibelsSFX = -80;
+        AudioManager.Instance.audioMixer.SetFloat(ManagementOptions.TypeSound.BGM.ToString(), decibelsBGM);
+        AudioManager.Instance.audioMixer.SetFloat(ManagementOptions.TypeSound.SFX.ToString(), decibelsSFX);
+        _= AudioManager.Instance.FadeIn();
+        await Awaitable.NextFrameAsync();
     }
     void SetStartingResolution(SaveData dataInfo)
     {
@@ -124,6 +131,8 @@ public class GameData : MonoBehaviour
         dataInfo.configurationsInfo.currentLanguage = TypeLanguage.English;
         SetStartingDataSound(dataInfo);
         SetStartingPlayerData(dataInfo);
+        dataInfo.configurationsInfo.FpsLimit = 60;
+        Application.targetFrameRate = 60;
         if (GameManager.Instance.currentDevice == GameManager.TypeDevice.PC) SetStartingResolution(dataInfo);
         saveData.gameInfo = new GameInfo();
         saveData = dataInfo;
@@ -155,6 +164,10 @@ public class GameData : MonoBehaviour
         if (languageIndex != 0) return csvData[id][languageIndex];
         return null;
     }
+    public void ChangeLanguage(TypeLanguage language)
+    {
+        saveData.configurationsInfo.currentLanguage = language;
+    }
     [Serializable] public class SaveData
     {
         public GameInfo gameInfo = new GameInfo();
@@ -169,9 +182,6 @@ public class GameData : MonoBehaviour
         public bool isInitialize = false;
         public string characterSelectedName;
     }
-    [NaughtyAttributes.Button] public void ChangeLanguage(){
-        saveData.configurationsInfo.currentLanguage = TypeLanguage.Español;
-    }
     [Serializable] public class ConfigurationsInfo
     {
         public TypeLanguage _currentLanguage;
@@ -185,6 +195,7 @@ public class GameData : MonoBehaviour
                 }
             }
         }
+        public int FpsLimit = 0;
         public ResolutionConfiguration resolutionConfiguration = new ResolutionConfiguration();
         public SoundConfiguration soundConfiguration = new SoundConfiguration();
     }

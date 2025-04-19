@@ -9,23 +9,27 @@ public class ManagementOptions : MonoBehaviour
     public TMP_Dropdown dropdownLanguage;
     public TMP_Dropdown dropdownResolution;
     public SoundInfo[] soundInfo;
+    public WindowModeButtonsInfo windowModeButtonsInfo;
+    public FpsButtonsInfo fpsButtonsInfo;
     public GameObject homeButton;
     public GameObject muteCheck;
-    public GameObject fullScreenCheck;
     public GameObject buttonResolution;
+    public ControlsInfo[] controlsInfo;
 
     void OnEnable()
     {
         InitializeLanguageDropdown();
         InitializeResolutionDropdown();
-        InitializeSliders();
-        if (GameManager.Instance.currentDevice == GameManager.TypeDevice.PC)
-        {
-            buttonResolution.SetActive(true);
-        }
+        SetFullScreenButtonsSprite();
+        SetVolumeFillAmounts();
+        GameManager.Instance.OnDeviceChanged += ChangeMenuButtons;
+        ChangeMenuButtons(GameManager.Instance.currentDevice);
         muteCheck.SetActive(GameData.Instance.saveData.configurationsInfo.soundConfiguration.isMute);
-        fullScreenCheck.SetActive(GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen);
         if (SceneManager.GetSceneByName("HomeScene").isLoaded) homeButton.SetActive(false);
+    }
+    void OnDestroy()
+    {
+        if (GameManager.Instance.principalDevice == GameManager.TypeDevice.PC) GameManager.Instance.OnDeviceChanged -= ChangeMenuButtons;
     }
     public void InitializeLanguageDropdown()
     {
@@ -46,6 +50,11 @@ public class ManagementOptions : MonoBehaviour
                 break;
             }
         }
+    }
+    public void ChangeLanguage()
+    {
+        GameData.TypeLanguage language = (GameData.TypeLanguage)dropdownLanguage.value;
+        GameData.Instance.ChangeLanguage(language);
     }
     public void InitializeResolutionDropdown()
     {
@@ -69,37 +78,58 @@ public class ManagementOptions : MonoBehaviour
             }
         }
     }
-    public void InitializeSliders()
+    public void SetVolumeFillAmounts()
     {
-        FindSlider(TypeSound.Master).value = GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue;
-        FindSlider(TypeSound.BGM).value = GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue;
-        FindSlider(TypeSound.SFX).value = GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue;
+        FindSlider(TypeSound.Master).fillAmount = GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue / 100;
+        FindSlider(TypeSound.BGM).fillAmount = GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue / 100;
+        FindSlider(TypeSound.SFX).fillAmount = GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue / 100;
     }
-    public void UnloadScene()
+    public Image FindSlider(TypeSound typeSound)
     {
-        Time.timeScale = 1;
-        SceneManager.UnloadSceneAsync("OptionsScene");
-        GameManager.Instance.isPause = false;
+        foreach (var sound in soundInfo)
+        {
+            if (sound.typeSound == typeSound)
+            {
+                return sound.image;
+            }
+        }
+        return null;
     }
     public void SetMixerValues()
     {
-        GameManager.Instance.SetAudioMixerData();
+        AudioManager.Instance.SetAudioMixerData();
     }
-    public void ChangeSoundValue(int typeSound)
+    public void SetSoundValue(int typeSound, bool isAdd)
     {
+        int amount = isAdd ? 1 : -1;
         switch (typeSound)
         {
             case 0:
-                GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue = FindSlider(TypeSound.Master).value;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue += amount;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue = 
+                    Math.Clamp(GameData.Instance.saveData.configurationsInfo.soundConfiguration.MASTERValue, 0, 100);
                 break;
             case 1:
-                GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue = FindSlider(TypeSound.BGM).value;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue += amount;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue = 
+                    Math.Clamp(GameData.Instance.saveData.configurationsInfo.soundConfiguration.BGMalue, 0, 100);
                 break;
             case 2:
-                GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue = FindSlider(TypeSound.SFX).value;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue += amount;
+                GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue = 
+                    Math.Clamp(GameData.Instance.saveData.configurationsInfo.soundConfiguration.SFXalue, 0, 100);
                 break;
         }
+        SetVolumeFillAmounts();
         SetMixerValues();
+    }
+    public void PlusVolume(int typeSound)
+    {
+        SetSoundValue(typeSound, true);
+    }
+    public void MiunsVolume(int typeSound)
+    {
+        SetSoundValue(typeSound, false);
     }
     public void SetMute()
     {
@@ -108,17 +138,47 @@ public class ManagementOptions : MonoBehaviour
         SetMixerValues();
         GameData.Instance.SaveGameData();
     }
-    public void SetFullScreen()
+    public void SetFullScreen(bool isFullScreen)
     {
-        GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen = !GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen;
-        fullScreenCheck.SetActive(GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen);
+        GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen = isFullScreen;
+        SetFullScreenButtonsSprite();
         Screen.SetResolution(
             GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.currentResolution.width,
             GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.currentResolution.height,
             GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen);
         GameData.Instance.SaveGameData();
     }
-    public void SetResolution()
+    public void SetFullScreenButtonsSprite()
+    {
+        bool isFullScreen = GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.isFullScreen;
+        if (isFullScreen)
+        {
+            windowModeButtonsInfo.buttonsImage[0].sprite = windowModeButtonsInfo.spriteOn;
+            windowModeButtonsInfo.buttonsImage[1].sprite = windowModeButtonsInfo.spriteOff;
+            return;
+        }
+        windowModeButtonsInfo.buttonsImage[0].sprite = windowModeButtonsInfo.spriteOff;
+        windowModeButtonsInfo.buttonsImage[1].sprite = windowModeButtonsInfo.spriteOn;
+    }
+    public void SetFpsLimit(int id)
+    {
+        int fps = id * 30;
+        Application.targetFrameRate = fps;
+        SetFpsLimitButtonsSprite();
+    }
+    public void SetFpsLimitButtonsSprite()
+    {
+        foreach(FpsButton fpsButton in fpsButtonsInfo.buttons)
+        {
+            if (fpsButton.id == Application.targetFrameRate)
+            {
+                fpsButton.buttonImage.sprite = fpsButtonsInfo.spriteOn;
+                return;
+            }
+            fpsButton.buttonImage.sprite = fpsButtonsInfo.spriteOff;
+        }
+    }
+    public void ChangeResolution()
     {
         GameData.ResolutionsInfo currentResolution = GetCurrentResolution(dropdownResolution.options[dropdownResolution.value].text);
         GameData.Instance.saveData.configurationsInfo.resolutionConfiguration.currentResolution = currentResolution;
@@ -135,21 +195,54 @@ public class ManagementOptions : MonoBehaviour
         int height = int.Parse(resolution.ToString().Substring(index + 1));
         return new GameData.ResolutionsInfo(width, height);
     }
-    public Slider FindSlider(TypeSound typeSound)
+    public void ChangeMenuButtons(GameManager.TypeDevice typeDevice)
     {
-        foreach (var slider in soundInfo)
+        foreach (ControlsInfo control in controlsInfo)
         {
-            if (slider.typeSound == typeSound)
+            if (control.typeDevice == typeDevice)
             {
-                return slider.slider;
+                control.container.SetActive(true);
+            }
+            else
+            {
+                control.container.SetActive(false);
             }
         }
-        return null;
+        if (typeDevice != GameManager.TypeDevice.MOBILE)
+        {
+            buttonResolution.SetActive(true);
+        }
+        else
+        {
+            buttonResolution.SetActive(false);
+        }
     }
     [Serializable] public class SoundInfo
     {
         public TypeSound typeSound;
-        public Slider slider;
+        public Image image;
+    }
+    [Serializable] public class WindowModeButtonsInfo
+    {
+        public Sprite spriteOn;
+        public Sprite spriteOff;
+        public Image[] buttonsImage;
+    }
+    [Serializable] public class FpsButtonsInfo
+    {
+        public Sprite spriteOn;
+        public Sprite spriteOff;
+        public FpsButton[] buttons;
+    }
+    [Serializable] public class FpsButton
+    {
+        public int id;
+        public Image buttonImage;
+    }
+    [Serializable] public class ControlsInfo
+    {
+        public GameManager.TypeDevice typeDevice;
+        public GameObject container;
     }
     public enum TypeSound
     {
