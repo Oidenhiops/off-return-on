@@ -97,7 +97,7 @@ public class ManagementOptions : MonoBehaviour
     }
     public void SetMixerValues()
     {
-        GameManager.Instance.SetAudioMixerData();
+        AudioManager.Instance.SetAudioMixerData();
     }
     public void SetSoundValue(int typeSound, bool isAdd)
     {

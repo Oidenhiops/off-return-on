@@ -86,7 +86,7 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         if (items[itemPos].amount + 1 > itemInfo.itemSO.maxItems) return;
         items[itemPos].amount++;
         items[itemPos].itemInfo = itemInfo;
-        ChangeLayer("Hand");
+        ChangeLayer("Hand", itemInfo.itemObj);
         itemInfo.managementObjectInteract.canInteract = false;
         itemInfo.managementObjectInteract.DisableBanner();
         itemInfo.rb.isKinematic = true;
@@ -98,7 +98,7 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
     }
     public void DropItem(int index)
     {
-        ChangeLayer("Interact");
+        ChangeLayer("Interact", items[index].itemInfo.itemObj);
         items[index].itemInfo.rb.isKinematic = false;
         items[index].itemInfo.collider.enabled = true;
         items[index].itemInfo.itemObj.transform.SetParent(null);
@@ -118,11 +118,11 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
             items[itemPos].itemInfo.itemInteract.UseItem(managementCharacter);
         }
     }
-    void ChangeLayer(String nameLayer)
+    void ChangeLayer(String nameLayer, GameObject itemToChangeLayer)
     {
-        for(int i = 1; i < gameObject.transform.childCount; i++)
+        for(int i = 1; i < itemToChangeLayer.transform.childCount; i++)
         {
-            gameObject.transform.GetChild(i).gameObject.layer = LayerMask.NameToLayer(nameLayer);
+            itemToChangeLayer.transform.GetChild(i).gameObject.layer = LayerMask.NameToLayer(nameLayer);
         }
     }
     [Serializable] public class Item
