@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
             }
         }
     }
-    bool CanStandUp()
+    public bool CanStandUp()
     {        
         if (Physics.Raycast(transform.position, Vector3.up * rangeRay, rangeRay, layerMask))
         {

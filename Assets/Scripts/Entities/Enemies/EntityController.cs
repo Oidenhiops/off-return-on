@@ -20,8 +20,8 @@ public class EntityController : MonoBehaviour
     [SerializeField] private AudioClip entityDangerSFX;
 
     [Header("Detección por Altura")]
-    [SerializeField] private float hideHeight = 0.4f; // Altura de escondite
-    [SerializeField] private Light flashlight;        // Linterna del jugador
+    [SerializeField] private FlashLigth flashlight;   
+    [SerializeField] private PlayerMovement playerMovement;     // Linterna del jugador
 
     [Header("Camera Shake")]
     [SerializeField] private float shakeIntensity = 0.05f;
@@ -42,7 +42,6 @@ public class EntityController : MonoBehaviour
     private bool isChasing = false;
     private bool isInvestigating = false;
     private bool isInAlertState = false;
-    private bool isPlayerHiding = false;      // ¿Está el jugador escondido?
 
     void Start()
     {
@@ -89,6 +88,7 @@ public class EntityController : MonoBehaviour
         agent.SetDestination(hit.position);
         agent.speed = patrolSpeed;
         animatorEntity.SetBool("IsEntityWalk", true);
+        isChasing = false;
     }
 
     // ===== ALERTA =====
@@ -178,7 +178,7 @@ public class EntityController : MonoBehaviour
 
         while (timer < searchTime)
         {
-            if (!isPlayerHiding)
+            if (playerMovement.CanStandUp())
             {
                 ChasePlayer();
             }
@@ -207,14 +207,11 @@ public class EntityController : MonoBehaviour
     {
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
-        float playerHeight = player.position.y;
 
         // Verificamos condiciones de escondite
-        bool isUnderBed = playerHeight <= hideHeight;
-        bool isFlashlightOn = (flashlight != null) && flashlight.enabled;
-        isPlayerHiding = isUnderBed && !isFlashlightOn;
+        bool isFlashlightOn = flashlight.transform.root.CompareTag("Player") && flashlight._light.enabled;
 
-        if (distanceToPlayer < visionRange && !isPlayerHiding)
+        if (distanceToPlayer < visionRange && playerMovement.CanStandUp() || distanceToPlayer < visionRange && isFlashlightOn)
         {
             float angle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
             if (angle < visionAngle / 2)
@@ -230,7 +227,7 @@ public class EntityController : MonoBehaviour
             }
         }
 
-        if (distanceToPlayer < 2f && !isPlayerHiding)
+        if (distanceToPlayer < 2f && isChasing)
         {
             PlayerDeath();// Activaremos la Animacion Screemer de Muerte
         }
@@ -238,7 +235,7 @@ public class EntityController : MonoBehaviour
 
     private void ChasePlayer()
     {
-        if (!isPlayerHiding) // Solo persigue si el jugador no está escondido
+        if (playerMovement.CanStandUp()) // Solo persigue si el jugador no está escondido
         {
             agent.SetDestination(player.position);
             agent.speed = chaseSpeed;

@@ -48,7 +48,7 @@ public class HorrorDollManager : MonoBehaviour
         {
             return hit.point;
         }
-        return playerModel.position - playerModel.forward * spawnDistanceBehind;
+        return transform.position + Vector3.up * 0.5f -playerModel.transform.forward * rangeDistToSpawn;
     }
     // Si apuntamos con la linterna y esta encendida, Destruimos la Muñeca y no llama a la entidad
     IEnumerator DollThreatRoutine()
