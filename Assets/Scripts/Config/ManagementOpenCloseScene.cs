@@ -64,7 +64,6 @@ public class ManagementOpenCloseScene : MonoBehaviour
     }
     public async Awaitable WaitFinishCloseAnimation()
     {
-        string name = gameObject.name;
         while (openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05));
         ResetValues();
     }
