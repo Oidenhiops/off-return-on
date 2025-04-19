@@ -16,6 +16,7 @@ public class EntityController : MonoBehaviour
     [SerializeField] private AudioClip detectionSound;
 
     private NavMeshAgent agent;
+    private Animator animatorEntity;
     private Vector3 patrolCenter;
     private bool isChasing = false;
     private bool isInvestigating = false;
@@ -23,6 +24,7 @@ public class EntityController : MonoBehaviour
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        animatorEntity = GetComponent<Animator>();
         patrolCenter = transform.position; // Punto central de patrulla
         PatrolNewPoint();
     }
@@ -61,6 +63,7 @@ public class EntityController : MonoBehaviour
         NavMesh.SamplePosition(randomPoint, out hit, patrolRadius, NavMesh.AllAreas);
         agent.SetDestination(hit.position);
         agent.speed = patrolSpeed;
+        animatorEntity.SetBool("IsEntityWalk", true);
     }
 
     // ===== INVESTIGACIÓN (cuando la muñeca avisa) =====
