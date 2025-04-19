@@ -11,6 +11,13 @@ public class EntityController : MonoBehaviour
     [SerializeField] private float visionRange = 10f;
     [SerializeField] private float visionAngle = 60f;
 
+    [Header("Alert Settings")]
+    [SerializeField] private float alertCameraTime = 2f;       // Tiempo de animación + cámara
+    [SerializeField] private float gracePeriod = 10f;          // Tiempo para esconderse
+    [SerializeField] private Camera entityCamera;              // Cámara de la entidad
+    [SerializeField] private AudioClip entityRoarSFX;          // Sonido de alerta
+    [SerializeField] private AudioClip suspenseSFX;          // Sonido de suspenso 12 segundos
+
     [Header("References")]
     [SerializeField] private Transform player;
     [SerializeField] private AudioClip detectionSound;
@@ -20,12 +27,13 @@ public class EntityController : MonoBehaviour
     private Vector3 patrolCenter;
     private bool isChasing = false;
     private bool isInvestigating = false;
+    private bool isInAlertState = false;                       // Evita superposición de alertas
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
         animatorEntity = GetComponent<Animator>();
-        patrolCenter = transform.position; // Punto central de patrulla
+        patrolCenter = transform.position;
         PatrolNewPoint();
     }
 
@@ -66,20 +74,50 @@ public class EntityController : MonoBehaviour
         animatorEntity.SetBool("IsEntityWalk", true);
     }
 
-    // ===== INVESTIGACIÓN (cuando la muñeca avisa) =====
+    // ===== ALERTA POR GRITO DE MUÑECA =====
     public void OnDollScream(Vector3 dollPosition)
     {
-        isInvestigating = true;
-        agent.speed = chaseSpeed;
-        agent.SetDestination(dollPosition);
-        PlaySound(detectionSound);
+        if (!isInAlertState)
+            StartCoroutine(AlertSequence(dollPosition));
     }
 
+    IEnumerator AlertSequence(Vector3 dollPosition)
+    {
+        isInAlertState = true;
+
+        // 1. Detener movimiento y activar animación/cámara
+        PlaySound(suspenseSFX);
+        agent.isStopped = true;
+        animatorEntity.SetBool("IsEntityAngry", true);
+        PlaySound(entityRoarSFX);
+        entityCamera.gameObject.SetActive(true);
+
+        // 2. Esperar tiempo de la animación
+        yield return new WaitForSeconds(alertCameraTime);
+
+        // 3. Desactivar cámara y reiniciar animación
+        entityCamera.gameObject.SetActive(false);
+        animatorEntity.SetBool("IsEntityAngry", false);
+
+        // 4. Movimiento hacia la muñeca
+        agent.isStopped = false;
+        agent.SetDestination(dollPosition);
+        agent.speed = chaseSpeed * 1.5f;  // Velocidad aumentada
+        isInvestigating = true;
+
+        // 5. Esperar tiempo de gracia (10s)
+        yield return new WaitForSeconds(gracePeriod);
+
+        // 6. Iniciar búsqueda activa
+        StartCoroutine(SearchPlayerRoutine());
+        isInAlertState = false;
+    }
+
+    // ===== INVESTIGACIÓN =====
     private void InvestigateArea()
     {
         if (agent.remainingDistance < 2f)
         {
-            // Busca al jugador en la zona por 10 segundos
             StartCoroutine(SearchPlayerRoutine());
         }
     }
@@ -91,7 +129,7 @@ public class EntityController : MonoBehaviour
 
         while (timer < searchTime)
         {
-            ChasePlayer(); // Persigue al jugador si está en la zona
+            ChasePlayer();
             timer += Time.deltaTime;
             yield return null;
         }
@@ -106,7 +144,7 @@ public class EntityController : MonoBehaviour
         Vector3 directionToPlayer = player.position - transform.position;
         float distanceToPlayer = directionToPlayer.magnitude;
 
-        // Detección por visión (ángulo + rango)
+        // Detección por visión
         if (distanceToPlayer < visionRange)
         {
             float angle = Vector3.Angle(transform.forward, directionToPlayer.normalized);
@@ -139,11 +177,12 @@ public class EntityController : MonoBehaviour
     private void PlayerDeath()
     {
         Debug.Log("¡Jugador eliminado!");
-        // Aquí iría la lógica de Game Over.
+        // Lógica de Game Over aquí
     }
 
     private void PlaySound(AudioClip clip)
     {
-        AudioSource.PlayClipAtPoint(clip, transform.position);
+        if (clip != null)
+            AudioSource.PlayClipAtPoint(clip, transform.position);
     }
 }
