@@ -17,6 +17,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private CinemachineCamera playerCamera; // Referencia a la cámara del jugador
     [SerializeField] private int playerCameraPriority = 20; // Prioridad al finalizar
     [SerializeField] private TutorialStep[] steps;
+    public GameObject globalVolume;
     
 
     private int currentStep = -1;
@@ -29,7 +30,7 @@ public class TutorialManager : MonoBehaviour
     private void InitializeTutorial()
     {
         Time.timeScale = 0f; // Pausar el juego
-
+        globalVolume.gameObject.SetActive(false); //Desactivar el global Volumen
         // Desactivar todos los Canvas y cámaras al inicio
         foreach (var step in steps)
         {
@@ -84,5 +85,6 @@ public class TutorialManager : MonoBehaviour
         {
             playerCamera.Priority = playerCameraPriority;
         }
+        globalVolume.gameObject.SetActive(true); //Activamos el Global Volume
     }
 }
