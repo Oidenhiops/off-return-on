@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Destroy(gameObject);
-        }        
+        }
         SetInitialDevice();
     }
     void Update()
@@ -55,14 +55,17 @@ public class GameManager : MonoBehaviour
         switch (typeScene)
         {
             case TypeScene.OptionsScene:
-                isPause = true;                
-                SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);                
+                isPause = true;
+                Scene optionsScene = SceneManager.GetSceneByName("OptionsScene");
+                if (!optionsScene.isLoaded) SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
                 break;
-            case TypeScene.CreditsScene:                
-                SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
+            case TypeScene.CreditsScene:
+                Scene creditsScene = SceneManager.GetSceneByName("CreditsScene");
+                if (!creditsScene.isLoaded) SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
                 break;
             case TypeScene.GameOver:
-                SceneManager.LoadScene("GameOver", LoadSceneMode.Additive);
+                Scene gameOverScene = SceneManager.GetSceneByName("GameOverScene");
+                if (!gameOverScene.isLoaded) SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
                 break;
             default:
                 _ = ChangeScene(typeScene);
@@ -73,7 +76,7 @@ public class GameManager : MonoBehaviour
     {
         openCloseScene.openCloseSceneAnimator.SetBool("Out", true);
         await AudioManager.Instance.FadeOut();
-        while (openCloseScene.openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05));;
+        while (openCloseScene.openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05)); ;
         if (typeScene == TypeScene.NextLevel)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
@@ -97,7 +100,7 @@ public class GameManager : MonoBehaviour
             Cursor.visible = true;
         }
         await Task.Delay(TimeSpan.FromSeconds(0.05));
-        _= openCloseScene.WaitFinishCloseAnimation();
+        _ = openCloseScene.WaitFinishCloseAnimation();
     }
     public void EnterScene()
     {
