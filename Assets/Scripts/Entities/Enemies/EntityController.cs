@@ -50,6 +50,7 @@ public class EntityController : MonoBehaviour
     private Vector3 originalCamPos;
     private Quaternion originalCamRot;
     private Vector3 lastKnownPlayerPosition; // Última posición registrada del jugador
+    private bool isDead = false; // Variable para controlar si el jugador ya está muerto
     private bool isChasing = false;
     private bool isInvestigating = false;
     private bool isInAlertState = false;
@@ -255,6 +256,9 @@ public class EntityController : MonoBehaviour
 
    private void PlayerDeath()
     {
+        if (isDead) return; // Si ya está muerto, no hacer nada
+        isDead = true;
+        
         Debug.Log("¡Jugador eliminado!");
         agent.isStopped = true;
         animatorEntity.SetBool("IsEntityAttack", true);
@@ -264,7 +268,7 @@ public class EntityController : MonoBehaviour
         // 2. Activar y configurar cámara de screamer
         entityCamera.gameObject.SetActive(true);
         // 3. Activar Sonido de Game Over
-        //PlaySound(gameOverSFX); // COrregir se instancian como 1000 audios xD
+        PlaySound(gameOverSFX); // COrregir se instancian como 1000 audios xD
 
         StartCoroutine(DeathCameraSequence());
     }
@@ -273,6 +277,7 @@ public class EntityController : MonoBehaviour
         yield return new WaitForSeconds(deathDelay);
         // 3. Esperar y finalizar
         Debug.Log("Jugador eliminado - Game Over");
+        GameManager.Instance.ChangeSceneSelector(GameManager.TypeScene.GameOver);
        
     }
 
