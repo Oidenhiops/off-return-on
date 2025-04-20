@@ -29,8 +29,19 @@ public class EntityController : MonoBehaviour
     [SerializeField] private Vector3 positionShakeAxis = new Vector3(1, 1, 0);
     [SerializeField] private Vector3 rotationShakeAxis = new Vector3(0, 0, 1);
 
+    [Header("Death Settings")]
+    [SerializeField] private float deathDelay = 4f; // Tiempo final antes del mensaje
+    [SerializeField] private AudioClip gameOverSFX; // Sonido Game Over
+
+    private Vector3 deathCamInitialPosition; // Posición inicial de la cámara de screamer
+
+    private Vector3 initialCameraPosition;
+    private Quaternion initialCameraRotation;
+
     [Header("References")]
     [SerializeField] private Transform player;
+    [SerializeField] private GameObject playerFull;
+
 
     // Variables privadas
     private NavMeshAgent agent;
@@ -242,10 +253,29 @@ public class EntityController : MonoBehaviour
         }
     }
 
-    private void PlayerDeath()
+   private void PlayerDeath()
     {
         Debug.Log("¡Jugador eliminado!");
+        agent.isStopped = true;
+        animatorEntity.SetBool("IsEntityAttack", true);
+
+        // 1. Desactivo la mano
+        playerFull.gameObject.SetActive(false);
+        // 2. Activar y configurar cámara de screamer
+        entityCamera.gameObject.SetActive(true);
+        // 3. Activar Sonido de Game Over
+        //PlaySound(gameOverSFX); // COrregir se instancian como 1000 audios xD
+
+        StartCoroutine(DeathCameraSequence());
     }
+    IEnumerator DeathCameraSequence()
+    {
+        yield return new WaitForSeconds(deathDelay);
+        // 3. Esperar y finalizar
+        Debug.Log("Jugador eliminado - Game Over");
+       
+    }
+
 
     private void PlaySound(AudioClip clip)
     {
