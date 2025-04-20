@@ -167,6 +167,7 @@ public class GameData : MonoBehaviour
     public void ChangeLanguage(TypeLanguage language)
     {
         saveData.configurationsInfo.currentLanguage = language;
+        SaveGameData();
     }
     [Serializable] public class SaveData
     {
