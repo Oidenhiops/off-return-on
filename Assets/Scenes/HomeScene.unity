@@ -2340,7 +2340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openCloseScene: {fileID: 8597147154206142278}
-  isWebGlBuild: 1
+  isWebGlBuild: 0
   _currentDevice: 0
   principalDevice: 0
   isPause: 0
