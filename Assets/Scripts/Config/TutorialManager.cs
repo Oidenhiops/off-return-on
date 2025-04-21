@@ -2,48 +2,52 @@ using UnityEngine;
 using TMPro;
 using Unity.Cinemachine; // Namespace correcto para Cinemachine
 using System.Collections;
+using UnityEngine.InputSystem;
 
 public class TutorialManager : MonoBehaviour
 {
+    public GameObject skipButton;
     [System.Serializable]
     public class TutorialStep
     {
-        public GameObject canvas;             
         public CinemachineCamera vcam; // Usar CinemachineVirtualCamera (no CinemachineCamera)
-        public TMP_Text textComponent;        
-        public UnityEngine.UI.Button continueButton; 
-        [TextArea(3, 5)] public string message; 
+        public int idText;
     }
-
+    public GameObject canvas;
+    public TMP_Text textComponent;
+    public UnityEngine.UI.Button continueButton;
     [Header("Configuración")]
     [SerializeField] private TutorialStep[] steps;
-    [SerializeField] private float typingSpeed = 30f; 
+    [SerializeField] private float typingSpeed = 30f;
 
     [Header("Cámara del Jugador")]
     [SerializeField] private CinemachineCamera playerCamera; // Tipo correcto
-    [SerializeField] private int playerCameraPriority = 20; 
+    [SerializeField] private int playerCameraPriority = 20;
 
     public GameObject globalVolume;
 
     private int currentStep = -1;
     private Coroutine typingCoroutine;
+    public PlayerInputs playerInputs;
 
     void Start()
     {
-        Time.timeScale = 0f;
         InitializeTutorial();
+        playerInputs.playerControls.Player.Interact.started += OnSkipTutotial;
     }
-
+    void OnDestroy()
+    {
+        playerInputs.playerControls.Player.Interact.started -= OnSkipTutotial;
+    }
     private void InitializeTutorial()
     {
-        
+
+        canvas.SetActive(true);
+        textComponent.text = "";
+        continueButton.onClick.AddListener(NextStep);
         foreach (var step in steps)
         {
-            step.canvas.SetActive(false);
             step.vcam.Priority = 0;
-            step.textComponent.text = ""; 
-            // Vincular el botón al método NextStep
-            step.continueButton.onClick.AddListener(NextStep); // ¡Este es el cambio clave!
         }
         NextStep();
     }
@@ -57,10 +61,7 @@ public class TutorialManager : MonoBehaviour
 
         if (currentStep >= 0)
         {
-            steps[currentStep].canvas.SetActive(false);
             steps[currentStep].vcam.Priority = 0;
-            // Remover listener del botón anterior para evitar duplicados
-            steps[currentStep].continueButton.onClick.RemoveListener(NextStep);
         }
 
         currentStep++;
@@ -72,35 +73,42 @@ public class TutorialManager : MonoBehaviour
         }
 
         var current = steps[currentStep];
-        current.canvas.SetActive(true);
         current.vcam.Priority = 15;
-        current.continueButton.interactable = false; 
+        continueButton.interactable = false;
 
         typingCoroutine = StartCoroutine(TypeText(current));
     }
 
     private IEnumerator TypeText(TutorialStep step)
     {
-        step.textComponent.text = "";
-        char[] messageArray = step.message.ToCharArray();
+        textComponent.text = "";
+        char[] messageArray = GameData.Instance.GetDialog(step.idText).ToCharArray();
 
         foreach (char c in messageArray)
         {
-            step.textComponent.text += c;
+            textComponent.text += c;
             yield return new WaitForSeconds(1f / typingSpeed);
         }
 
-        step.continueButton.interactable = true; 
+        continueButton.interactable = true;
     }
-
+    public void OnSkipTutotial(InputAction.CallbackContext context)
+    {
+        SkipTutorial();
+    }
+    public void SkipTutorial()
+    {
+        EndTutorial();
+    }
     private void EndTutorial()
     {
-        Time.timeScale = 1f;
+        playerInputs.playerControls.Player.Interact.started -= OnSkipTutotial;
+        canvas.SetActive(false);
+        GameManager.Instance.startGame = true;
         foreach (var step in steps)
         {
-            step.canvas.SetActive(false);
             step.vcam.Priority = 0;
-            step.continueButton.onClick.RemoveListener(NextStep); // Limpiar listeners
+            continueButton.onClick.RemoveListener(NextStep); // Limpiar listeners
         }
 
         if (playerCamera != null)
@@ -108,7 +116,7 @@ public class TutorialManager : MonoBehaviour
             playerCamera.Priority = playerCameraPriority;
         }
 
-        globalVolume.gameObject.SetActive(true); 
+        //globalVolume.gameObject.SetActive(true);
         Destroy(gameObject);
     }
 }

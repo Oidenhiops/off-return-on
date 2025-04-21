@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -27,7 +28,20 @@ public class GameManager : MonoBehaviour
         }
     }
     public bool isPause;
-    public bool startGame;
+    public bool _startGame;
+    public Action<bool> OnStartGame;
+    public bool startGame
+    {
+        get => _startGame;
+        set
+        {
+            if (_startGame != value)
+            {
+                _startGame = value;
+                OnStartGame?.Invoke(_startGame);
+            }
+        }
+    }
     void Awake()
     {
         if (Instance == null)
@@ -43,29 +57,27 @@ public class GameManager : MonoBehaviour
     }
     void Update()
     {
-        if (startGame)
-        {
-            CheckCurrentDevice();
-        }
+        CheckCurrentDevice();
     }
     public void ChangeSceneSelector(TypeScene typeScene)
-    {
-        isPause = false;
-        Time.timeScale = 0;
+    {        
         switch (typeScene)
         {
             case TypeScene.OptionsScene:
+                Time.timeScale = 0;
                 isPause = true;
-                Scene optionsScene = SceneManager.GetSceneByName("OptionsScene");
-                if (!optionsScene.isLoaded) SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
+                if (!SceneManager.GetSceneByName("OptionsScene").isLoaded) SceneManager.LoadScene("OptionsScene", LoadSceneMode.Additive);
                 break;
             case TypeScene.CreditsScene:
-                Scene creditsScene = SceneManager.GetSceneByName("CreditsScene");
-                if (!creditsScene.isLoaded) SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
+                if (!SceneManager.GetSceneByName("CreditsScene").isLoaded) SceneManager.LoadScene("CreditsScene", LoadSceneMode.Additive);
                 break;
-            case TypeScene.GameOver:
-                Scene gameOverScene = SceneManager.GetSceneByName("GameOverScene");
-                if (!gameOverScene.isLoaded) SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
+            case TypeScene.GameOverScene:
+                Cursor.visible = true;
+                if (!SceneManager.GetSceneByName("GameOverScene").isLoaded) SceneManager.LoadScene("GameOverScene", LoadSceneMode.Additive);
+                break;
+            case TypeScene.WinScene:
+                Cursor.visible = true;
+                if (!SceneManager.GetSceneByName("WinScene").isLoaded) SceneManager.LoadScene("WinScene", LoadSceneMode.Additive);
                 break;
             default:
                 _ = ChangeScene(typeScene);
@@ -79,28 +91,38 @@ public class GameManager : MonoBehaviour
         while (openCloseScene.openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05)); ;
         if (typeScene == TypeScene.NextLevel)
         {
+            ValidateActiveMouse(typeScene.ToString());
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
         }
         else if (typeScene == TypeScene.Reload)
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            ValidateActiveMouse(SceneManager.GetSceneAt(0).name);
+            SceneManager.LoadScene(SceneManager.GetSceneAt(0).name);
         }
-        else
+        else if (typeScene == TypeScene.Exit)
         {
             Application.Quit();
         }
-        if (typeScene != TypeScene.HomeScene ||
-            typeScene != TypeScene.CreditsScene ||
-            typeScene != TypeScene.OptionsScene)
-        {
-            Cursor.visible = false;
-        }
         else
         {
-            Cursor.visible = true;
+            ValidateActiveMouse(typeScene.ToString());
+            SceneManager.LoadScene(typeScene.ToString());
         }
         await Task.Delay(TimeSpan.FromSeconds(0.05));
         _ = openCloseScene.WaitFinishCloseAnimation();
+    }
+    public void ValidateActiveMouse(string typeScene)
+    {
+        if (typeScene == TypeScene.HomeScene.ToString() ||
+            typeScene == TypeScene.CreditsScene.ToString() ||
+            typeScene == TypeScene.OptionsScene.ToString())
+        {
+            Cursor.visible = true;
+        }
+        else
+        {
+            Cursor.visible = false;
+        }
     }
     public void EnterScene()
     {
@@ -193,7 +215,8 @@ public class GameManager : MonoBehaviour
         CreditsScene = 3,
         Reload = 4,
         Exit = 5,
-        GameOver = 6
+        GameOverScene = 6,
+        WinScene = 7
     }
     public enum TypeDevice
     {

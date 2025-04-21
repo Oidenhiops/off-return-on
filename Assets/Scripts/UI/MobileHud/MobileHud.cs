@@ -8,6 +8,10 @@ public class MobileHud : MonoBehaviour
         GameManager.Instance.OnDeviceChanged += OnMobileHud;
         OnMobileHud(GameManager.Instance.currentDevice);
     }
+    void OnDestroy()
+    {
+        GameManager.Instance.OnDeviceChanged -= OnMobileHud;
+    }
     public void OnMobileHud(GameManager.TypeDevice device){
         if (device == GameManager.TypeDevice.MOBILE)
         {

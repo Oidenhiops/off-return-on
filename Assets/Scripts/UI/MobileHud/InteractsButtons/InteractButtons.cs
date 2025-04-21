@@ -14,7 +14,11 @@ public class InteractButtons : MonoBehaviour
         OnItemChange(playerItems.currentItem);
         OnInteractChange(playerInteract.objectInteract);
     }
-
+    void OnDestroy()
+    {
+        playerItems.OnCurrentItemChange -= OnItemChange;
+        playerInteract.OnObjectInteractChange -= OnInteractChange;
+    }
     void OnItemChange(PlayerItems.Item item)
     {
         if (item != null && item.itemInfo.itemSO)

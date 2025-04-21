@@ -34,6 +34,10 @@ public class PlayerInteract : MonoBehaviour, ManagementCharacter.IInteract
         playerInputs = GetComponent<PlayerInputs>();
         playerInputs.playerControls.Player.Interact.started += OnInteract;
     }
+    void OnDestroy()
+    {
+        playerInputs.playerControls.Player.Interact.started -= OnInteract;
+    }
     public void HandleInteract(){
         
     }

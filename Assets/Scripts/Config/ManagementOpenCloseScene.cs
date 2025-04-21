@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Threading.Tasks;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -60,20 +61,29 @@ public class ManagementOpenCloseScene : MonoBehaviour
     {
         Time.timeScale = 1;
         _= AudioManager.Instance.FadeIn();
-        GameManager.Instance.startGame = true;
     }
     public async Awaitable WaitFinishCloseAnimation()
     {
-        while (openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f) await Task.Delay(TimeSpan.FromSeconds(0.05));
+        while (openCloseSceneAnimator.GetCurrentAnimatorStateInfo(0).normalizedTime < 1f)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(0.05));
+        }
         ResetValues();
     }
     public void ResetValues()
     {
         if (auto)
         {
-            currentLoad = 0;
-            finishLoad = false;
-            StartCoroutine(AutoCharge());
+            try
+            {
+                currentLoad = 0;
+                finishLoad = false;
+                StartCoroutine(AutoCharge());
+            }
+            catch(Exception e)
+            {
+                print(e);
+            }
         }
     }
 }

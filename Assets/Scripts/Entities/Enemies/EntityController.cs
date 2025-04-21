@@ -54,6 +54,7 @@ public class EntityController : MonoBehaviour
     private bool isChasing = false;
     private bool isInvestigating = false;
     private bool isInAlertState = false;
+    private bool startHunt = false;
 
     void Start()
     {
@@ -61,26 +62,40 @@ public class EntityController : MonoBehaviour
         animatorEntity = GetComponent<Animator>();
         patrolCenter = transform.position;
         originalCamPos = entityCamera.transform.localPosition;
-        originalCamRot = entityCamera.transform.localRotation;
-        PatrolNewPoint();
+        originalCamRot = entityCamera.transform.localRotation;        
+        GameManager.Instance.OnStartGame += OnGameStart;
     }
-
+    void OnDestroy()
+    {
+        GameManager.Instance.OnStartGame -= OnGameStart;
+    }
+    public void OnGameStart(bool startGame)
+    {
+        if (!startHunt)
+        {
+            startHunt = true;
+            PatrolNewPoint();
+        }
+    }
     void Update()
     {
-        if (isChasing)
+        if (startHunt)
         {
-            ChasePlayer();
-        }
-        else if (isInvestigating)
-        {
-            InvestigateArea();
-        }
-        else
-        {
-            Patrol();
-        }
+            if (isChasing)
+            {
+                ChasePlayer();
+            }
+            else if (isInvestigating)
+            {
+                InvestigateArea();
+            }
+            else
+            {
+                Patrol();
+            }
 
-        CheckForPlayer();
+            CheckForPlayer();
+        }
     }
 
     // ===== PATRULLA =====
@@ -277,7 +292,7 @@ public class EntityController : MonoBehaviour
         yield return new WaitForSeconds(deathDelay);
         // 3. Esperar y finalizar
         Debug.Log("Jugador eliminado - Game Over");
-        GameManager.Instance.ChangeSceneSelector(GameManager.TypeScene.GameOver);
+        GameManager.Instance.ChangeSceneSelector(GameManager.TypeScene.GameOverScene);
        
     }
 

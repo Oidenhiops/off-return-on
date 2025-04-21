@@ -19,7 +19,7 @@ public class ManagementCharacter : MonoBehaviour
     }
     void Update()
     {
-        if (GameManager.Instance.startGame && character.isActive)
+        if (GameManager.Instance.startGame && !GameManager.Instance.isPause && character.isActive)
         {
             if (character.movementCs != null) character.movementCs.HandleMove();
             if (character.directionCs != null) character.directionCs.HandleDirection();

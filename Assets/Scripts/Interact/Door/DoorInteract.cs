@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class DoorInteract : ObjectBase
 {
@@ -32,7 +33,10 @@ public class DoorInteract : ObjectBase
                 doorAnimator.SetBool("isActive", string.Equals(display.text, key, System.StringComparison.OrdinalIgnoreCase));
                 break;
             default:
-                display.text += gameObject.name;
+                if (display.text.Length < key.Length)
+                {
+                    display.text += gameObject.name;
+                }
                 break;
         }
     }

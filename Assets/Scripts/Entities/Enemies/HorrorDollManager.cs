@@ -18,10 +18,23 @@ public class HorrorDollManager : MonoBehaviour
     public float rangeDistToSpawn;
     private GameObject currentDoll;
     private bool isDollActive = false;
+    bool startHunt = false;
 
     void Start()
     {
-        StartCoroutine(SpawnDollRoutine());
+        GameManager.Instance.OnStartGame += OnStartGame;
+    }
+    void OnDestroy()
+    {
+        GameManager.Instance.OnStartGame -= OnStartGame;
+    }
+    public void OnStartGame(bool startGame)
+    {
+        if (!startHunt)
+        {
+            startHunt = true;
+            StartCoroutine(SpawnDollRoutine());
+        }
     }
 
     // Spawneamos la Muñeca detrás del player y activamos el metodo para poder destruirla por 5 segundos

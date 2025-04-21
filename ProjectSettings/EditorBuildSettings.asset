@@ -12,8 +12,8 @@ EditorBuildSettings:
     path: Assets/Scenes/IntroScene.unity
     guid: f5d4003326b531d4393716828b08da91
   - enabled: 1
-    path: Assets/Scenes/Andres.unity
-    guid: ff3c6ec5d05279643b7a8c7c92c3950c
+    path: Assets/Scenes/SebasPrueba2.unity
+    guid: 3022130c065fbaa449b564f30d43d64e
   - enabled: 1
     path: Assets/Scenes/OptionsScene.unity
     guid: e4de90932c5f6c144bae1e4bec782e88
@@ -23,6 +23,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/GameOverScene.unity
     guid: ed12323c8b4bf5b438c38e1fa94cb335
+  - enabled: 1
+    path: Assets/Scenes/WinScene.unity
+    guid: 70805df96c981464f9270b67ee7cc67a
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0

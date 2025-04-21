@@ -47,8 +47,11 @@ public class GameManagerHelper : MonoBehaviour
     {
         _unloadAnimator.SetBool("exit", true);
         yield return new WaitForSecondsRealtime(0.5f);
-        if (sceneForUnload == "OptionsScene") Time.timeScale = 1;
+        if (sceneForUnload == "OptionsScene")
+        {
+            Time.timeScale = 1;
+            GameManager.Instance.isPause = false;
+        }
         SceneManager.UnloadSceneAsync(sceneForUnload);
-        GameManager.Instance.isPause = false;
     }
 }

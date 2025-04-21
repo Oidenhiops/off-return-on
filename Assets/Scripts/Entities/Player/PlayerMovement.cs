@@ -22,6 +22,10 @@ public class PlayerMovement : MonoBehaviour, ManagementCharacter.IMovement
         playerInputs = GetComponent<PlayerInputs>();
         playerInputs.playerControls.Player.Crouch.performed += OnCrouch;
     }
+    void OnDestroy()
+    {
+        playerInputs.playerControls.Player.Crouch.performed -= OnCrouch;
+    }
     public void HandleMove()
     {
         Vector3 inputs = new Vector3

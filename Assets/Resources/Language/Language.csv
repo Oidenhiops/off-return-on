@@ -38,5 +38,12 @@
 37;OptionText: FullScreenText;Full screen;Pantalla completa;
 38;OptionText: WindowText;Window;Ventana;
 39;GameOverMenu: Tittle game over; You lost;Perdiste;
-40;GameOverMenu: text game over;Your soul is     no longer yours;Tu alma ya no es tuya;
+40;GameOverMenu: Text game over;Your soul is            no longer yours;Tu alma            ya no es tuya;
 41;GameOverMenu: ResetButton;Reset;Reiniciar;
+42;WinMenu: Tittle Win; Victory;Ganaste;
+43;WinMenu: text Win;Your soul is            remains your own;Tu alma            sigue siendo tuya.;
+44;DialogTutorial: dialog 1;YOUR CRUEL ACTS MADE YOU TATSHEBAS CAPTIVE THE DEMONIC DOLL. DESTROY HER WITH LIGHT BEFORE SHE SUMMONS THE DEMON, OR REDEEM YOURSELF AND FLEE... BEFORE ITS TOO LATE.;Tus actos crueles te hicieron prisionero, Tatsebás, de la muñeca demoníaca. DESTRUYELA CON LUZ ANTES DE QUE INVOCE AL DEMONIO, O REDÍMITE Y HUYE... ANTES DE QUE SEA DEMASIADO TARDE.;
+45;DialogTutorial: dialog 1;ON THE BED IS A FLASHLIGHT TO EXPLORE. IF THE LIGHT STAYS ON, THE ENTITY WILL SPOT YOU... AND YOULL DIE.;Sobre la cama hay una linterna para explorar. Si la luz permanece encendida, la entidad te detectará... y morirás.;
+46;DialogTutorial: dialog 1;IF THE ENTITY APPROACHES, RUN AND HIDE UNDER A BED WHILE TURNING OFF THE FLASHLIGHT. IF IT CATCHES YOU... YOU ARE LOST.;Si la entidad se acerca, corre y escóndete debajo de una cama mientras apagas la linterna. Si te atrapa... estás perdido.;
+47;DialogTutorial: dialog 1;THE EXIT IS HERE. SOLVE THE HIDDEN CODE. PEOPLE LIKE YOU DONT VALUE TRUE ART. SEARCH IN SILENCE... OR YOU WILL NEVER ESCAPE.;LA SALIDA ESTÁ AQUÍ. RESUELVE EL CÓDIGO OCULTO. LA GENTE COMO TÚ NO VALORA EL ARTE VERDADERO. BUSCA EN SILENCIO... O NUNCA ESCAPARÁS.;
+48;DialogTutorial: Continue;Continue;Continuar;

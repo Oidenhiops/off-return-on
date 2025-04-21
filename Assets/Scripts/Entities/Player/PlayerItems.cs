@@ -29,6 +29,13 @@ public class PlayerItems : MonoBehaviour, ManagementCharacter.IItems
         playerInputs.playerControls.Player.DropItem.started += OnDropItem;
         playerInputs.playerControls.Player.UseItem.started += OnUseItem;
     }
+    void OnDestroy()
+    {
+        playerInputs.playerControls.Player.ChangeItem.started -= OnChangeItem;
+        playerInputs.playerControls.Player.SelectItem.started -= OnSelectItem;
+        playerInputs.playerControls.Player.DropItem.started -= OnDropItem;
+        playerInputs.playerControls.Player.UseItem.started -= OnUseItem;
+    }
     void OnChangeItem(InputAction.CallbackContext context)
     {
         ChangeItem(context.ReadValue<float>() > 0);
