@@ -218,6 +218,7 @@ public class EntityController : MonoBehaviour
                     NavMeshHit hit;
                     NavMesh.SamplePosition(randomPoint, out hit, 5f, NavMesh.AllAreas);
                     agent.SetDestination(hit.position);
+                    print(hit.position);
                 }
             }
 

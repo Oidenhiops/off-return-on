@@ -2720,7 +2720,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9030998118434005612, guid: 513f72e54a3f4b64396f49038522c002, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5481294633506727240, guid: 513f72e54a3f4b64396f49038522c002, type: 3}
@@ -6283,6 +6283,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Entity
       objectReference: {fileID: 0}
+    - target: {fileID: 6982338077789830540, guid: f5ba59f00c3c287469b524ee2127f301, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7759121410851137334, guid: f5ba59f00c3c287469b524ee2127f301, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.01
@@ -6575,7 +6579,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.06666667
   m_MinRegionArea: 0
-  m_NavMeshData: {fileID: 23800000, guid: f5b6cf605239a754fb5d1426a24ed664, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 6b2b4501741728f42961098c1f124c36, type: 2}
   m_BuildHeightMesh: 1
 --- !u!4 &689461833
 Transform:
@@ -15063,7 +15067,7 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 355f467ce95454d4da5dcaa939f72fff, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1507006421}
+      addedObject: {fileID: 1507006424}
   m_SourcePrefab: {fileID: 100100000, guid: 355f467ce95454d4da5dcaa939f72fff, type: 3}
 --- !u!4 &1507006419 stripped
 Transform:
@@ -15075,7 +15079,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 355f467ce95454d4da5dcaa939f72fff, type: 3}
   m_PrefabInstance: {fileID: 1507006418}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &1507006421
+--- !u!64 &1507006424
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -15088,7 +15092,7 @@ MeshCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
